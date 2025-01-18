@@ -7,8 +7,9 @@ interface JoinMessage {
 
 interface WebRTCPayload {
     channel: string;
-    offer?: RTCSessionDescription;
-    from?: string;
+    offer: RTCSessionDescription;
+    to: string;
+    from: string;
 }
 
 interface ICEPayload {
@@ -28,7 +29,7 @@ interface ClientEvent {
 interface ServerEvent {
     "no-channel": (data: {}) => void;
     "existing-channel": () => void;
-    "user-joined": (userId: string) => void;
+    "user-joined": (userIds: string[]) => void;
     "webrtc-offer": (payload: WebRTCPayload) => void;
     "webrtc-answer": (payload: WebRTCPayload) => void;
     "ice-candidate": (payload: ICEPayload) => void;
@@ -84,23 +85,22 @@ class WebSocketManager {
 
     #handleJoinChannel(socket: Socket<ClientEvent, ServerEvent>, joinMessage: JoinMessage) {
         if (!this.#rooms[joinMessage.channel]) {
+            socket.to(socket.id).emit("user-joined", this.#rooms[joinMessage.channel].users);
             this.#rooms[joinMessage.channel].users.push(socket.id);
         } else {
             this.#rooms[joinMessage.channel].users = [socket.id]
         }
 
-        socket.to(joinMessage.channel).emit("user-joined", socket.id);
     }
 
     #handleWebRTCOffer(socket: Socket<ClientEvent, ServerEvent>, payload: WebRTCPayload) {
-        console.log("Offer received from owner to " + payload.channel);
-
-        socket.broadcast.to(payload.channel).emit("webrtc-offer", payload);
+        console.log("Offer received from " + payload.from + " to " + payload.channel);
+        socket.to(payload.to).emit("webrtc-offer", payload);
     }
 
     #handleWebRTCAnswer(socket: Socket<ClientEvent, ServerEvent>, payload: WebRTCPayload) {
         console.log("Answer received from", payload.from);
-        socket.broadcast.to(payload.channel).emit("webrtc-answer", payload);
+        socket.to(payload.to).emit("webrtc-offer", payload);
     }
 
     #handleICECandidate(socket: Socket<ClientEvent, ServerEvent>, payload: ICEPayload) {

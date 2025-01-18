@@ -4,6 +4,7 @@ import express from 'express';
 import http from "http";
 import {WebSocketManager} from "./WebSocketManager";
 import {attachGracefulShutdownHandler} from "./shutdown";
+import {v1 as uuidv4} from "uuid";
 
 const PORT = process.env.PORT || 8080;
 
@@ -11,8 +12,8 @@ const app = express();
 const server = http.createServer(app);
 const wsManager = WebSocketManager.attach(server);
 
-app.post("/generate-token", (req, res) => {
-    res.send({"message": "hello there"});
+app.get("/api/generate-token", (req, res) => {
+    res.send({"token": uuidv4()});
 })
 
 attachGracefulShutdownHandler(wsManager, server);
