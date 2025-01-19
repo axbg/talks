@@ -48,7 +48,13 @@ class WebSocketManager {
     #rooms: Record<string, RoomData>;
 
     constructor(server: http.Server) {
-        this.#io = new Server<ClientEvent, ServerEvent>(server);
+        this.#io = new Server<ClientEvent, ServerEvent>(server, {
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST'],
+                allowedHeaders: ['Content-Type'],
+            }
+        });
         this.#rooms = {};
 
         this.#initializeHandlers();
