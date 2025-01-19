@@ -1,5 +1,6 @@
-import { Server, Socket } from "socket.io";
+import {Server, Socket} from "socket.io";
 import http from "http";
+import {validate} from "uuid";
 
 interface JoinMessage {
     channel: string;
@@ -27,9 +28,8 @@ interface ClientEvent {
 }
 
 interface ServerEvent {
-    "no-channel": (data: {}) => void;
-    "existing-channel": () => void;
-    "user-joined": (userIds: string[]) => void;
+    "no-channel": () => void;
+    "discover-peers": (userIds: string[]) => void;
     "webrtc-offer": (payload: WebRTCPayload) => void;
     "webrtc-answer": (payload: WebRTCPayload) => void;
     "ice-candidate": (payload: ICEPayload) => void;
@@ -90,23 +90,26 @@ class WebSocketManager {
     }
 
     #handleJoinChannel(socket: Socket<ClientEvent, ServerEvent>, joinMessage: JoinMessage) {
-        if (!this.#rooms[joinMessage.channel]) {
-            socket.to(socket.id).emit("user-joined", this.#rooms[joinMessage.channel].users);
+        if (this.#rooms[joinMessage.channel]) {
+            socket.emit("discover-peers", this.#rooms[joinMessage.channel].users);
             this.#rooms[joinMessage.channel].users.push(socket.id);
+        } else if (validate(joinMessage.channel)) {
+            this.#rooms[joinMessage.channel] = {users: [socket.id]};
+            console.log("New channel created: ", joinMessage.channel);
         } else {
-            this.#rooms[joinMessage.channel].users = [socket.id]
+            console.log(socket.id);
+            socket.emit("no-channel");
         }
-
     }
 
     #handleWebRTCOffer(socket: Socket<ClientEvent, ServerEvent>, payload: WebRTCPayload) {
-        console.log("Offer received from " + payload.from + " to " + payload.channel);
+        console.log("Offer received from " + payload.from + " to " + payload.to);
         socket.to(payload.to).emit("webrtc-offer", payload);
     }
 
     #handleWebRTCAnswer(socket: Socket<ClientEvent, ServerEvent>, payload: WebRTCPayload) {
-        console.log("Answer received from", payload.from);
-        socket.to(payload.to).emit("webrtc-offer", payload);
+        console.log("Answer received from", payload.from + " to " + payload.to);
+        socket.to(payload.to).emit("webrtc-answer", payload);
     }
 
     #handleICECandidate(socket: Socket<ClientEvent, ServerEvent>, payload: ICEPayload) {
@@ -117,14 +120,14 @@ class WebSocketManager {
     #handleDisconnect(socket: Socket<ClientEvent, ServerEvent>) {
         console.log("Client disconnected:", socket.id);
 
-        // Find the channel this socket was in
         const channel = Object.keys(this.#rooms).find(ch =>
             this.#rooms[ch].users.includes(socket.id)
         );
 
-        if(channel) {
+        if (channel) {
             if (this.#rooms[channel] && this.#rooms[channel].users.length === 1) {
                 // remove channel if this is the last user connected
+                console.log("Channel deleted: ", channel);
                 delete this.#rooms[channel];
             } else {
                 this.#rooms[channel].users = this.#rooms[channel].users.filter(id => id !== socket.id);
@@ -133,4 +136,4 @@ class WebSocketManager {
     }
 }
 
-export { WebSocketManager };
+export {WebSocketManager};

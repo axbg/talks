@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import Video from "../video/Video";
 import WebSocketManager from "../../sockets/WebSocketManager.js";
 import {defaultConfigurations} from "../../data/defaults";
@@ -8,20 +8,20 @@ import Button from "../button/Button.jsx";
 import Preview from "../preview/Preview.jsx";
 
 const ControlBoard = () => {
+    const configurations = useRef(JSON.parse(JSON.stringify(defaultConfigurations)));
+
     const params = useParams();
+    const room = params.id;
+
     const [wsManager, setWsManager] = useState(null);
     const [mediaStreamManager, setMediaStreamManager] = useState(null);
 
-    const room = params.id;
     const [isActive, setIsActive] = useState(false);
-
-    const [localMediaStream, setLocalMediaStream] = useState(null);
     const [webcamStatus, setWebcamStatus] = useState(true);
     const [micStatus, setMicStatus] = useState(true);
 
+    const [localMediaStream, setLocalMediaStream] = useState(null);
     const [remoteMediaStreams, setRemoteMediaStreams] = useState([]);
-
-    const [configurations] = useState(JSON.parse(JSON.stringify(defaultConfigurations)));
 
     useEffect(() => {
         async function captureLocalMedia() {
@@ -32,29 +32,18 @@ const ControlBoard = () => {
             setLocalMediaStream(mdm.localStreamCapture);
         }
 
-        captureLocalMedia()
-    }, [])
+        captureLocalMedia();
+        setWsManager(new WebSocketManager());
 
-    useEffect(() => {
         return () => {
+            stop();
+
             if (mediaStreamManager) {
                 setLocalMediaStream(null);
                 mediaStreamManager.stopLocalStreamCapture();
             }
         }
-    }, [mediaStreamManager])
-
-    useEffect(() => {
-        if (wsManager) {
-            wsManager.connect(room, configurations, setIsActive, setVideoStream, micAudio);
-        }
-
-        return () => {
-            if (wsManager) {
-                wsManager.disconnect(setIsActive, setVideoStream);
-            }
-        }
-    }, [wsManager]);
+    }, [])
 
     const toggleWebcam = () => {
         setWebcamStatus(mediaStreamManager.toggleWebcam());
@@ -65,11 +54,15 @@ const ControlBoard = () => {
     }
 
     const start = () => {
-        setWsManager(new WebSocketManager());
+        if (wsManager) {
+            wsManager.connect(room, configurations.current, localMediaStream, setIsActive, setRemoteMediaStreams);
+        }
     }
 
     const stop = () => {
-        setWsManager(null);
+        if (wsManager) {
+            wsManager.disconnect(setIsActive, setRemoteMediaStreams);
+        }
     }
 
     return (
@@ -79,7 +72,7 @@ const ControlBoard = () => {
                 {!isActive ?
                     <Video preview={true} videoStream={localMediaStream}/>
                     :
-                    remoteMediaStreams.map((stream, index) => <Video key={index} controls={true} videoStream={stream}/>)
+                    Object.values(remoteMediaStreams).map((remoteStream, index) => <Video key={index} controls={true} videoStream={remoteStream}/>)
                 }
             </div>
             <div className="flex justify-center gap-2 pt-4">

@@ -1,38 +1,150 @@
-import { io } from "socket.io-client";
-import { signalingServer } from "../data/defaults";
+import {io} from "socket.io-client";
+import {signalingServer} from "../data/defaults";
 
 class WebSocketManager {
     #socket = null;
 
-    #captureWebcam = null;
-    #captureMicStream = null;
+    #localWebcamStream = null;
+    #shouldDisconnect = false;
 
     #peerConnections = {};
 
-    constructor(captureWebcam, captureMicStream) {
+    constructor() {
         this.#socket = io(signalingServer);
-        this.#captureWebcam = captureWebcam;
-        this.#captureMicStream = captureMicStream;
     }
 
-    connect(channelName, configurations, setIsActive, setVideoStream, captureMic) {
+    connect(channelName, configurations, localWebcamStream, setIsActive, setRemoteVideoStreams) {
         this.#socket.connect();
-        this.startChannel(channelName, configurations, setIsActive, setVideoStream, captureMic);
+        this.#localWebcamStream = localWebcamStream;
+        this.joinChannel(channelName, configurations, setIsActive, setRemoteVideoStreams);
     }
 
-    async startChannel(channelName, configurations, setIsActive, setVideoStream) {
-        this.attachSocketHandlers(channelName, configurations, setIsActive, setVideoStream );
-        this.#socket.emit("join-channel", { channel: channelName, type: "sharer" });
+    async joinChannel(channelName, configurations, setIsActive, setRemoteVideoStreams) {
+        this.attachSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams);
+        this.#socket.emit("join-channel", {channel: channelName});
         setIsActive(true);
     }
 
-    async attachSocketHandlers(channelName, configurations, setIsActive, setVideoStream, setViewersCount) {
-        this.#socket.on("existing-channel", () => {
-            this.disconnect(setIsActive, setVideoStream, setViewersCount);
-            alert("Channel " + channelName + " is already existing");
+    async attachSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams) {
+        this.attachJoinSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams);
+        this.attachUserJoinedSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams);
+    }
+
+    async attachJoinSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams) {
+        this.#socket.on("no-channel", () => {
+            console.log("something not good");
+            this.disconnect(setIsActive, setRemoteVideoStreams);
         });
 
-        this.#socket.on("user-joined", async (socketId) => {
+        this.#socket.on("discover-peers", async (peers) => {
+            for (const socketId of peers) {
+                const peerConnection = new RTCPeerConnection({
+                    iceServers: configurations,
+                    iceTransportPolicy: "all",
+                    bundlePolicy: "max-bundle",
+                    rtcpMuxPolicy: "require",
+                    sdpSemantics: "unified-plan",
+                    iceCandidatePoolSize: 10
+                });
+
+                this.#peerConnections[socketId] = peerConnection;
+
+                this.#localWebcamStream.getTracks().forEach(track => {
+                    if (track.kind === 'video') {
+                        peerConnection.addTransceiver(track, {
+                            direction: 'sendrecv',
+                            streams: [this.#localWebcamStream],
+                            sendEncodings: [{
+                                scalabilityMode: 'L3T3',
+                                maxBitrate: 3000000,
+                                maxFramerate: 60
+                            }]
+                        });
+                        console.log("Added video tracks");
+                    } else {
+                        peerConnection.addTrack(track, this.#localWebcamStream);
+                        console.log("Added device audio track");
+                    }
+                });
+
+                peerConnection.getSenders().forEach(sender => {
+                    console.log("Sender track:", sender.track);
+                });
+
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        this.#socket.emit("ice-candidate", {
+                            channel: channelName,
+                            from: this.#socket.id,
+                            to: socketId,
+                            candidate: event.candidate
+                        });
+
+                        console.log("Sent ICE candidate to:", event.candidate);
+                    }
+                };
+
+                peerConnection.ontrack = (event) => {
+                    console.log("Track event received:", event);
+                    const mediaStream = event.streams[0];
+                    setRemoteVideoStreams((mediaStreams) => ({...mediaStreams, [socketId]: mediaStream}));
+                };
+
+                peerConnection.onconnectionstatechange = () => {
+                    console.log(peerConnection.connectionState);
+
+                    switch (peerConnection.connectionState) {
+                        case "connected":
+                            break;
+                        case "disconnected":
+                            if (this.#shouldDisconnect) {
+                                console.log("correctly disconnected");
+                            } else {
+                                console.log("unexpected disconnect, trying reconnection");
+                                setRemoteVideoStreams(remoteStreams => Object.fromEntries(Object.entries(remoteStreams).filter(([key]) => key !== socketId)));
+                                break;
+                            }
+                        // case "closed":
+                        // case "failed":
+                        //     this.disconnect(socketId, setIsActive, setVideoStream);
+                        //     break;
+                    }
+                }
+
+                const offer = await peerConnection.createOffer();
+                const modifiedOffer = offer.sdp.replace("VP8", "H264");
+                await peerConnection.setLocalDescription(new RTCSessionDescription({
+                    type: "offer",
+                    sdp: modifiedOffer
+                }));
+
+                this.#socket.emit("webrtc-offer", {
+                    channel: channelName,
+                    to: socketId,
+                    sdp: offer,
+                    from: this.#socket.id
+                });
+            }
+        });
+
+        this.#socket.on("webrtc-answer", (payload) => {
+            this.#peerConnections[payload.from].setRemoteDescription(new RTCSessionDescription(payload.sdp))
+                .then(() => console.log("Received answer from viewer", payload))
+                .catch(error => console.error("Error setting remote description:", error));
+        });
+
+        this.#socket.on("ice-candidate", (payload) => {
+            this.#peerConnections[payload.from].addIceCandidate(new RTCIceCandidate(payload.candidate))
+                .then(() => console.log("Added ICE candidate from viewer", payload.candidate))
+                .catch(error => console.error("Error adding ICE candidate:", error));
+        });
+    }
+
+    async attachUserJoinedSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams) {
+        this.#socket.on("webrtc-offer", async (payload) => {
+            console.log("Offer received from sharer:", payload);
+            const socketId = payload.from;
+
             const peerConnection = new RTCPeerConnection({
                 iceServers: configurations,
                 iceTransportPolicy: "all",
@@ -44,33 +156,33 @@ class WebSocketManager {
 
             this.#peerConnections[socketId] = peerConnection;
 
-            this.#captureWebcam.getTracks().forEach(track => {
+            this.#localWebcamStream.getTracks().forEach(track => {
                 if (track.kind === 'video') {
-                    peerConnection.addTransceiver(track, {
-                        direction: 'sendonly',
-                        streams: [this.#captureWebcam],
-                        sendEncodings: [{
-                            scalabilityMode: 'L3T3',
-                            maxBitrate: 3000000,
-                            maxFramerate: 60
-                        }]
-                    });
+                    peerConnection.addTrack(track, this.#localWebcamStream);
                     console.log("Added video tracks");
+                } else {
+                    peerConnection.addTrack(track, this.#localWebcamStream);
+                    console.log("Added device audio track");
                 }
             });
-
-            if (this.#captureMicStream) {
-                this.#captureMicStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, this.#captureWebcam);
-                    console.log("Added mic track");
-                })
-            }
 
             peerConnection.getSenders().forEach(sender => {
                 console.log("Sender track:", sender.track);
             });
 
+            peerConnection.ontrack = (event) => {
+                console.log("Track event received:", event);
+                const mediaStream = event.streams[0];
+                setRemoteVideoStreams((mediaStreams) => ({...mediaStreams, [socketId]: mediaStream}));
+            };
+
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
             peerConnection.onicecandidate = (event) => {
+                console.log("ICE received", event.candidate);
                 if (event.candidate) {
                     this.#socket.emit("ice-candidate", {
                         channel: channelName,
@@ -79,61 +191,46 @@ class WebSocketManager {
                         candidate: event.candidate
                     });
 
-                    console.log("Sent ICE candidate to:", event.candidate);
+                    console.log("Sent ICE candidate to sharer:", event.candidate);
                 }
             };
 
-            peerConnection.oniceconnectionstatechange = () => {
-                const state = peerConnection.iceConnectionState;
+            peerConnection.onconnectionstatechange = () => {
+                console.log(peerConnection.connectionState);
 
-                if (state === "connected") {
-                    setViewersCount((viewers) => viewers + 1);
-                } else if (state === "disconnected" || state === "failed") {
-                    setViewersCount((viewers) => viewers > 0 ? viewers - 1 : viewers);
-                    console.log("Client " + socketId + " disconnected");
-                    peerConnection.close();
-                    delete this.#peerConnections[socketId];
+                switch (peerConnection.connectionState) {
+                    case "connected":
+                        break;
+                    case "disconnected":
+                        if (this.#shouldDisconnect) {
+                            console.log("correctly disconnected");
+                        } else {
+                            setRemoteVideoStreams(remoteStreams => Object.fromEntries(Object.entries(remoteStreams).filter(([key]) => key !== socketId)));
+                            break;
+                        }
+                    // case "closed":
+                    // case "failed":
+                    //     this.disconnect(setIsActive, setVideoStream);
+                    //     break;
                 }
             }
 
-            const offer = await peerConnection.createOffer();
-            const modifiedOffer = offer.sdp.replace("VP8", "H264");
-            await peerConnection.setLocalDescription(new RTCSessionDescription({ type: "offer", sdp: modifiedOffer }));
-
-            this.#socket.emit("webrtc-offer", { channel: channelName, target: socketId, sdp: offer });
-
-            console.log("Screen sharing started, offer sent to channel:", channelName);
+            this.#socket.emit("webrtc-answer", {
+                channel: channelName,
+                sdp: answer,
+                from: this.#socket.id,
+                to: socketId
+            });
         });
-
-        this.#socket.on("webrtc-answer", (payload) => {
-            this.#peerConnections[payload.from].setRemoteDescription(new RTCSessionDescription(payload.sdp))
-              .then(() => console.log("Received answer from viewer", payload))
-              .catch(error => console.error("Error setting remote description:", error));
-          });
-        
-        this.#socket.on("ice-candidate", (payload) => {
-            this.#peerConnections[payload.from].addIceCandidate(new RTCIceCandidate(payload.candidate))
-              .then(() => console.log("Added ICE candidate from viewer", payload.candidate))
-              .catch(error => console.error("Error adding ICE candidate:", error));
-          });
     }
 
-    disconnect(setIsActive, setVideoStream) {
+    disconnect(setIsActive, setRemoteVideoStreams) {
         this.#socket.disconnect();
 
-        if (this.#captureWebcam) {
-            this.#captureWebcam.getTracks().forEach(track => track.stop());
-        }
-
-        if (this.#captureMicStream) {
-            this.#captureMicStream.getTracks().forEach(track => track.stop());
-        }
-
-        this.#captureWebcam = null;
-        this.#captureMicStream = null;
-
-        setVideoStream(null);
+        setRemoteVideoStreams([]);
         setIsActive(false);
+
+        Object.values(this.#peerConnections).forEach(peerConnection => peerConnection.close());
     }
 }
 
