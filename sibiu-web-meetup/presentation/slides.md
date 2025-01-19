@@ -73,7 +73,7 @@ title: webrtc
 layout: image-right
 image: https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1624&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
 ---
-# WebRTC? Why?
+# WebRTC? How?
 <br><br>
 
 - Teaching stuff is cool, but you have to talk a lot
@@ -132,5 +132,44 @@ built on:
 </div>
 ---
 title: something
+layout: image-right
+image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 ---
 # what is WebRTC?
+
+<br>
+
+- a free and open-source project that became a web standard
+- a collection technologies used together to achieve performant real-time peer-to-peer communication
+- a global standardization effort
+- a pragmatic approach that makes use of preexisting protocols
+- a set of APIs that can be used to integrate real-time media exchange in web applications
+---
+title: something
+layout: image-right
+image: https://avatars.githubusercontent.com/u/68770129?s=280&v=4
+---
+# WebRTC for the Curious
+
+<br><br>
+
+- an open-source book created by WebRTC implementers
+- available for free forever at [webrtcforthecurious.com](https://webrtcforthecurious.com/)
+- the main source of information for this talk
+- (yes, I looked the same when I managed to implement my first WebRTC demo)
+---
+title: something
+layout: two-cols
+---
+# Components & processes
+<br>
+
+The underlying technologies, which represent the fabric of WebRTC, are used in a specific order to exchange real-time media between multiple clients
+
+For a connection to be established, each of these processes must succeed:
+
+- Signaling
+- Discovery
+- Connection
+
+Let's take a closer look at each of them
