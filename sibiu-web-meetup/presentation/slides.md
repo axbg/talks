@@ -140,7 +140,7 @@ image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 <br>
 
 - a free and open-source project that became a web standard
-- a collection technologies used together to achieve performant real-time peer-to-peer communication
+- a collection technologies used together to achieve performant real-time peer-to-peer (P2P) transmissions using UDP
 - a global standardization effort
 - a pragmatic approach that makes use of preexisting protocols
 - a set of APIs that can be used to integrate real-time media exchange in web applications
@@ -156,12 +156,17 @@ image: https://avatars.githubusercontent.com/u/68770129?s=280&v=4
 - an open-source book created by WebRTC implementers
 - available for free forever at [webrtcforthecurious.com](https://webrtcforthecurious.com/)
 - the main source of information for this talk
-- (yes, I looked the same when I managed to implement my first WebRTC demo)
+- (yes, I had the same look when I managed to implement my first WebRTC demo)
 ---
 title: something
-layout: two-cols
 ---
-# Components & processes
+# WebRTC: underlying technologies
+
+<img src="https://webrtcforthecurious.com/docs/images/01-webrtc-agent.png" />
+---
+title: something
+---
+# Components & Processes
 <br>
 
 The underlying technologies, which represent the fabric of WebRTC, are used in a specific order to exchange real-time media between multiple clients
@@ -169,7 +174,164 @@ The underlying technologies, which represent the fabric of WebRTC, are used in a
 For a connection to be established, each of these processes must succeed:
 
 - Signaling
-- Discovery
-- Connection
+  - Media negociation
+  - Discovery
+
+- Establishing connection
 
 Let's take a closer look at each of them
+---
+title: something
+layout: image-right
+---
+# Signaling
+finding each other
+
+WebRTC aims to establish a P2P connection between each of the participants
+
+As in all P2P systems, before the connection can be established, a mechanism that allows the peers to find each other is required
+
+Even though it's the first step, *WebRTC does not cover signaling*: each implementer can choose how the peers will discover each other
+
+The most common approach is to use a *WebSocket* server that governs the initial discovery process
+
+-- ceva imagine cu peers
+---
+title: something
+---
+# Signaling
+exchanging data about data
+
+Signaling starts with an exchange between the peers: one of them will initiate the process by sending an **offer**, while the other, after reviewing the offer, responds with an **answer**
+
+These objects, which are routed through the signaling server, contain all the information required for the peers to understand **what media will be exchanged**
+
+No connection is established for the moment, but if the negociation between the peers does not succeed, the process is dropped
+
+The *offer* and the *answer* are part of the *Session Description Protocol* (SDP) which is used internally by WebRTC
+---
+title: something
+---
+# Signaling
+a direct path
+
+The peers know what media will be exchanged, but they are not connected yet
+
+Besides the initial process, where a centralized "meeting" point is used, WebRTC uses P2P connections 
+
+The main advantages are:
+- Lower latency
+- Lower infrastructure costs
+- Increased security (as data is not processed by any central server)
+
+The advantages comes with some caveats, as establishing a direct connection between two peers is not a trivial task
+---
+title: something
+layout: two-cols
+---
+# Signaling
+real-world networking issues
+
+Unlike client/server systems, where the server is directly accessible on the internet, peers in P2P connections might not share the same network or have public IP addresses
+
+In such cases, Network Address Translation (NAT) is the key mechanism that enables connections
+
+NAT mapping allows devices on a private network to communicate with other devices on the Internet by translating their private IP addresses into a single public IP address
+
+NAT also makes it possible for external devices to connect to agents in a private network using an already established mapping
+
+::right::
+<div style="display: flex">
+  <img  src="https://webrtcforthecurious.com/docs/images/03-nat-mapping.png" />
+</div>
+---
+title: something
+---
+# Signaling
+a lot of NATs
+
+NATs come in different flavors, and sometimes they can block peers from establishing a connection
+
+The most important classification describes the mapping creation behaviors, where NATs can be:
+  - Endpoint independent - once a mapping is created it can be reused
+  - Address/Address and Port dependent mapping - a mapping is created for each connection, targeting a specific address or address and port
+
+The same classification can be applied to mapping filtering behaviors
+
+**For WebRTC to work using P2P, at least one of the peers should have an endpoint-independent mapping**
+
+In case P2P connection is not possible, WebRTC can function in a relayed way
+---
+title: something
+layout: image-right
+image: https://www.datocms-assets.com/41207/1645049022-stun.png?w=694&h=694&q=40
+---
+# Signaling
+who am I? (a pragmatic question)
+
+
+The details about the NAT are not known by the peers
+
+While they can create NAT mappings by sending outbound requests, they are not aware of their own Internet-facing IPs
+
+This is where the Session Traversel Utilities for NAT (STUN) protocol comes into play
+
+To learn more about their external IP, each peer will connect to a STUN server and will receive information about the external IP associated to itself by the NAT
+
+---
+title: something
+---
+# Establishing connection
+ICE ICE baby
+
+To establish a connection, WebRTC uses the Interactive Connectivity Establishment (ICE) technology
+
+ICE uses the STUN answer, together with the local IP of the peer, to determine a list of possible addresses that can be used for connection
+
+The candidates are exchanged using the signaling server and ICE starts to group each local candidate with each remote candidate, obtaining multiple *candidate pairs*
+
+ICE tries to establish a connection between the members of each pair, and, based on connectivity and performance, selects a pair that becomes the *selected candidate pair* that will be used for the rest of the session
+
+The peers are now P2P connected, and they can start to exchange media respecting the *offers* that they agreed upon
+---
+title: something
+layout: image-right
+image: https://runby.com/system/inserted_images/images/000/000/574/blog_export/TURN2.png?1488875873
+---
+# Establishing connection
+rely on relaying
+
+If a direct connection cannot be established due to the restrictive nature of the NATs, direct ICE connection will fail as well
+
+In this situation, ICE will use the **Traversal Using Relays around NAT (TURN)** protocol to mediate the exchange through a **relay server**
+
+Unlike the STUN server, which does not establish a permanent connection with the peers, the TURN server will receive traffic from each peer and will ensure the correct retransmission
+
+**A robust WebRTC integration should always use TURN as a fallback mechanism**
+---
+title: something
+layout: center
+---
+# enough talk, show me some code
+visiting the main browser WebRTC APIs
+---
+title: something
+layoutClass: gap-12
+---
+# Capturing user media
+<br>
+
+Before exchanging media streams, a client should *capture* them
+
+Most browsers support the standard *Media Capture and Streams API* (MediaStream API) which allows the capture of webcams, screens, device audio and microphones
+
+```js {none|1-2|3-4|all}
+// captures webcam and microphone
+const capturedUserStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true});
+// captures screen and audio device (currently supported only in Chrome for individual browser tabs)
+const captureMediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+```
+
+The user will be prompted for consent for each captured stream
+
+The MediaStream API was developed together with the WebRTC API, so the captured media streams can seamlessly be used as sources in the live media exchange process
