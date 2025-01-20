@@ -12,7 +12,7 @@ transition: fade-out
 ---
 
 # WebRTC
-## : start here
+## :start here
 
 A gentle introduction to the real-time communication standard of the web
 
@@ -316,7 +316,6 @@ layout: center
 visiting the main browser WebRTC APIs
 ---
 title: something
-layoutClass: gap-12
 ---
 # Capturing user media
 <br>
@@ -335,3 +334,181 @@ const captureMediaStream = await navigator.mediaDevices.getDisplayMedia({ video:
 The user will be prompted for consent for each captured stream
 
 The MediaStream API was developed together with the WebRTC API, so the captured media streams can seamlessly be used as sources in the live media exchange process
+
+Each track can receive as parameter an object representing the [*constraints*](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) that should be applied
+---
+title: something
+---
+# Preparing connection
+peers and stream
+
+Then, the initiating client is ready to create a peer instance
+```js {none|1-4|5|all}
+// the configuration object is used to configure the ICE process
+// in a simple implementation, it just specifies which STUN/TURN servers to use
+//  in more complex implementations, the configuration object can define additional options: https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/RTCPeerConnection
+const configuration = {'iceServers': [{'urls': ['stun:stun.l.google.com:19302', 'turn:TURN_IP:3478[user:password]']}]}
+const peerConnection = new RTCPeerConnection(configuration);
+```
+
+Before creating an offer, the peer instance should be instructed how to handle upcoming connections
+
+The order in which these configurations are written is not important, as they will be used only after the offer is sent
+
+First thing could be to bind the captured user media stream to the peer instance
+```js {none|all}
+capturedUserMedia.getTracks().forEach(track => {
+  // the type of each added track can be determined by the 'kind' property (e.g: video, audio)
+  // if the tracks are associated with a stream instance, WebRTC will handle them together
+  peerConnection.addTrack(track, capturedUserMedia);
+});
+```
+---
+title: something
+---
+# Preparing connection
+handling events
+
+Each WebRTC interaction is handled in an event-like manner: each peer will do an action, while the other will specify ahead of time it's behavior for each important event
+
+So, the peer should be instructed what to do when it receives tracks from the remote peer
+```js {none|all}
+peerConnection.ontrack = (event) => {
+  // even though individual tracks are received, we are referencing to the stream
+  // this way, both video and audio tracks could be handled by the same video HTML element
+  videoElement.srcObject = event.streams[0];
+};
+```
+
+When the offer is created, WebRTC will start gathering ICE candidates and will send each one of them to the connecting peer through the signaling server
+```js {none|all}
+peerConnection.onicecandidate = (event) => {
+  if (event.candidate) {
+    // generic method that will rely on the signaling server
+    sendToSignalingServer(event.candidate)
+  }
+}};
+```
+---
+title: something
+---
+# Preparing connection
+#
+
+Each peer is informed each time the state of the upcoming connection will change
+```js {none|1|3,5,7,9|all}
+peerConnection.onconnectionstatechange = () => {
+  switch (peerConnection.connectionState) {
+    case "connected":
+      //...
+    case "disconnected":
+      //...
+    case "closed":
+      //...
+    case "failed":
+      //...
+}}
+```
+Now, the initiating peer is ready to create an offer, bind it to itself and send it to the other peer through the signaling server
+```js {none|1|2-5|7|all}
+const offer = await peerConnection.createOffer();
+await peerConnection.setLocalDescription(new RTCSessionDescription({
+  type: "offer",
+  sdp: offer
+}));
+
+sendToSignalingServer(offer);
+```
+---
+title: something
+---
+# Accepting an offer
+#
+
+When an offer arrives, the receiving end creates its own peer instance, following a very similar set of steps, it accepts the offer and sends back the answer
+```js {none|1|2-6|8|10-11|13|all}
+webSocket.on("receiving-offer", async (payload) => {
+  const peerConnection = new RTCPeerConnection(configurations);
+
+  // ...
+  // setting up its event handlers
+  // ...
+
+  peerConnection.setRemoteDescription(payload.offer);
+
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  sendToSignalingServer(answer);
+})
+```
+---
+title: something
+---
+# Breaking the ICE
+#
+
+The only thing that was not covered in the previous example is receiving  of ICE candidates
+
+Besides gathering and sending its own ICE candidates to the signaling server, each peer should prepare to receive the ICE candidates of the opposite side
+```js {none|1|2-4|all}
+webSocket.on("ice-candidate", (payload) => {
+  peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate))
+    .then(() => console.log("Added ICE candidate from viewer", payload.candidate))
+    .catch(error => console.error("Error adding ICE candidate:", error));
+});
+```
+
+Starting with the first candidate that arrives, WebRTC starts to create and test all the possible **pairs**
+
+Once the best pair is found, the connection state is promoted to **connected** and the negociated streams are exchanged P2P
+
+<div v-click style="display: flex; justify-content: center">
+  <p style="font-size: 5rem">🎆</p>
+</div>
+
+---
+title: something
+---
+# Renegociation
+#     
+TODO: check this implementation
+It happens frequently for the peers to want to remove some media tracks or add new ones after the connection is established
+
+For soft removal, a solution is to disable, keeping the option to enable it again later
+```js {none|1|2|all}
+if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
+  capturedUserMedia.getVideoTracks()[0].enabled = false;
+}
+```
+
+Adding or removing tracks trigger the renegociation process, repeating the initial offer-answer exchange
+```js {none|1|2-5|8|all}
+peerConnection.onnegotiationneeded = () => {
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(new RTCSessionDescription({ type: "offer", sdp: offer }));
+
+  sendToSignalingServer(offer);
+}
+
+// modify the media tracks associated with the peerConnection to trigger the renegociation
+```
+
+By default, the ICE connection will not be modified, but a peer can request that by toggling the **iceRestart** parameter
+---
+title: debugging
+---
+# Watching data flow (and debugging it)
+
+Most browsers offer similar interfaces for viewing and debugging active and recently closed WebRTC connections
+
+For Chromium-based browsers: chrome://webrtc-internals/
+
+For Firefox: about:webrtc
+
+-- imagine webrtc internals
+---
+title: tools
+---
+# Tools to rule them all
+
