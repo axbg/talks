@@ -426,10 +426,7 @@ peerConnection.onconnectionstatechange = () => {
 Now, the initiating peer is ready to create an offer, bind it to itself and send it to the other peer through the signaling server
 ```js {none|1|2-5|7|all}
 const offer = await peerConnection.createOffer();
-await peerConnection.setLocalDescription(new RTCSessionDescription({
-  type: "offer",
-  sdp: offer
-}));
+await peerConnection.setLocalDescription(offer);
 
 sendToSignalingServer(offer);
 ```
@@ -484,9 +481,8 @@ Once the best pair is found, the connection state is promoted to **connected** a
 ---
 title: something
 ---
-# Renegociation
+# Renegotiation
 #     
-TODO: check this implementation
 It happens frequently for the peers to want to remove some media tracks or add new ones after the connection is established
 
 For soft removal, a solution is to disable, keeping the option to enable it again later
@@ -496,19 +492,46 @@ if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
 }
 ```
 
-Adding or removing tracks trigger the renegociation process, repeating the initial offer-answer exchange
+Adding or removing tracks trigger the renegotiation process which should establish a new pair of offer and answer
 ```js {none|1|2-5|8|all}
 peerConnection.onnegotiationneeded = () => {
   const offer = await peerConnection.createOffer();
-  await peerConnection.setLocalDescription(new RTCSessionDescription({ type: "offer", sdp: offer }));
+  // make sure to reuse the existing peer on both ends
+  await peerConnection.setLocalDescription(offer);
 
   sendToSignalingServer(offer);
 }
-
 // modify the media tracks associated with the peerConnection to trigger the renegociation
 ```
 
 By default, the ICE connection will not be modified, but a peer can request that by toggling the **iceRestart** parameter
+
+
+---
+title: debugging
+---
+# Renegotiation
+On the receiving end, the peer should also be reused, as most of the times the process will happen seamlessly, in the background, without triggering a request for a new connection
+
+```js {none|1|2-5|8|all}
+webSocket.on("receiving-offer", async (payload) => {
+  if (peerConnection) {
+    peerConnection.setRemoteDescription(payload.offer);
+
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    sendToSignalingServer(answer);
+  } else {
+    peerConnection = new RTCPeerConnection(configurations);
+    // the rest of the configuration discussed above
+  }
+}
+```
+
+Renegotiation can be triggered by both ends, and when both ends emit an offer at the same time, the ICE state machine could be upset
+
+This is known as the **glare problem** and there are [a ways to handle it beautifully](https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/)
 
 ---
 title: debugging
