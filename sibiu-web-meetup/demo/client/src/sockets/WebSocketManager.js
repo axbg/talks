@@ -49,23 +49,23 @@ class WebSocketManager {
 
                 this.#peerConnections[socketId] = peerConnection;
 
-                this.#localWebcamStream.getTracks().forEach(track => {
-                    if (track.kind === 'video') {
-                        peerConnection.addTransceiver(track, {
-                            direction: 'sendrecv',
-                            streams: [this.#localWebcamStream],
-                            sendEncodings: [{
-                                scalabilityMode: 'L3T3',
-                                maxBitrate: 3000000,
-                                maxFramerate: 60
-                            }]
-                        });
-                        console.log("Added video tracks");
-                    } else {
-                        peerConnection.addTrack(track, this.#localWebcamStream);
-                        console.log("Added device audio track");
-                    }
-                });
+                // this.#localWebcamStream.getTracks().forEach(track => {
+                //     if (track.kind === 'video') {
+                //         peerConnection.addTransceiver(track, {
+                //             direction: 'sendrecv',
+                //             streams: [this.#localWebcamStream],
+                //             sendEncodings: [{
+                //                 scalabilityMode: 'L3T3',
+                //                 maxBitrate: 3000000,
+                //                 maxFramerate: 60
+                //             }]
+                //         });
+                //         console.log("Added video tracks");
+                //     } else {
+                //         peerConnection.addTrack(track, this.#localWebcamStream);
+                //         console.log("Added device audio track");
+                //     }
+                // });
 
                 peerConnection.getSenders().forEach(sender => {
                     console.log("Sender track:", sender.track);
@@ -111,12 +111,20 @@ class WebSocketManager {
                     }
                 }
 
-                const offer = await peerConnection.createOffer();
-                const modifiedOffer = offer.sdp.replace("VP8", "H264");
-                await peerConnection.setLocalDescription(new RTCSessionDescription({
-                    type: "offer",
-                    sdp: modifiedOffer
-                }));
+                peerConnection.onnegotiationneeded = async () => {
+                    const offer = await peerConnection.createOffer();
+                    await peerConnection.setLocalDescription(offer);
+
+                    this.#socket.emit("webrtc-offer", {
+                        channel: channelName,
+                        to: socketId,
+                        sdp: peerConnection.localDescription,
+                        from: this.#socket.id
+                    });
+                }
+
+                const offer = await peerConnection.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true});
+                await peerConnection.setLocalDescription(offer);
 
                 this.#socket.emit("webrtc-offer", {
                     channel: channelName,
@@ -124,10 +132,19 @@ class WebSocketManager {
                     sdp: offer,
                     from: this.#socket.id
                 });
+
+                setTimeout(() => {
+                    this.#localWebcamStream.getTracks().forEach(track => {
+                        peerConnection.addTrack(track, this.#localWebcamStream);
+                    });
+                }, 5000);
             }
         });
 
         this.#socket.on("webrtc-answer", (payload) => {
+            console.log("received answer");
+            console.log(payload);
+
             this.#peerConnections[payload.from].setRemoteDescription(new RTCSessionDescription(payload.sdp))
                 .then(() => console.log("Received answer from viewer", payload))
                 .catch(error => console.error("Error setting remote description:", error));
@@ -145,14 +162,33 @@ class WebSocketManager {
             console.log("Offer received from sharer:", payload);
             const socketId = payload.from;
 
-            const peerConnection = new RTCPeerConnection({
-                iceServers: configurations,
-                iceTransportPolicy: "all",
-                bundlePolicy: "max-bundle",
-                rtcpMuxPolicy: "require",
-                sdpSemantics: "unified-plan",
-                iceCandidatePoolSize: 10
-            });
+            let peerConnection;
+            // if renegociation, don't recreate bindings, but accept new offer
+            if(this.#peerConnections[socketId]) {
+                peerConnection = this.#peerConnections[socketId];
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+
+                this.#socket.emit("webrtc-answer", {
+                    channel: channelName,
+                    sdp: answer,
+                    from: this.#socket.id,
+                    to: socketId
+                });
+
+                return;
+            } else {
+                peerConnection = new RTCPeerConnection({
+                    iceServers: configurations,
+                    iceTransportPolicy: "all",
+                    bundlePolicy: "max-bundle",
+                    rtcpMuxPolicy: "require",
+                    sdpSemantics: "unified-plan",
+                    iceCandidatePoolSize: 10
+                });
+            }
 
             this.#peerConnections[socketId] = peerConnection;
 
@@ -182,7 +218,7 @@ class WebSocketManager {
             await peerConnection.setLocalDescription(answer);
 
             peerConnection.onicecandidate = (event) => {
-                console.log("ICE received", event.candidate);
+                console.log("ICE found", event.candidate);
                 if (event.candidate) {
                     this.#socket.emit("ice-candidate", {
                         channel: channelName,

@@ -13,7 +13,7 @@ const Preview = (props) => {
         <>
             <div className={"fixed bottom-5 right-5"} >
                 <div style={{width: "200px"}}>
-                    <video ref={refVideo} className={"w-full"} playsInline autoPlay>
+                    <video ref={refVideo} className={"w-full"} playsInline autoPlay muted>
                     </video>
                     <div className="absolute right-1 bottom-0">
                         <p className="text-white font-semibold drop-shadow-lg">
