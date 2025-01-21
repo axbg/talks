@@ -12,7 +12,7 @@ transition: fade-out
 ---
 
 # WebRTC
-## :start here
+<h2>start <span class="blinking">:</span> here</h2>
 
 A gentle introduction to the real-time communication standard of the web
 
@@ -30,6 +30,19 @@ A gentle introduction to the real-time communication standard of the web
     <carbon:logo-github />
   </a>
 </div>
+
+<style>
+.blinking {
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+</style>
+
 ---
 title: Personal intro
 layout: image-right
@@ -123,7 +136,7 @@ built on:
 - TypeScript
 - React
 - Express
-- WebSockets
+- Socket.IO (WebSockets)
 - **WebRTC**
 
 ::right::
@@ -143,6 +156,7 @@ image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 - a collection technologies used together to achieve performant real-time peer-to-peer (P2P) transmissions using UDP
 - a global standardization effort
 - a pragmatic approach that makes use of preexisting protocols
+- a secure-by-default way to exchange real-time media
 - a set of APIs that can be used to integrate real-time media exchange in web applications
 ---
 title: something
@@ -495,6 +509,7 @@ peerConnection.onnegotiationneeded = () => {
 ```
 
 By default, the ICE connection will not be modified, but a peer can request that by toggling the **iceRestart** parameter
+
 ---
 title: debugging
 ---
@@ -506,9 +521,142 @@ For Chromium-based browsers: chrome://webrtc-internals/
 
 For Firefox: about:webrtc
 
--- imagine webrtc internals
+- imagine webrtc internals
 ---
 title: tools
 ---
-# Tools to rule them all
+# Useful resources
 
+- The book: https://webrtcforthecurious.com/
+- Mozilla's WebRTC API documentation: https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API
+- Find out your NAT type: https://www.checkmynat.com/
+- Public STUN servers: https://gist.github.com/mondain/b0ec1cf5f60ae726202e
+- How to set up a TURN server using coturn: https://gabrieltanner.org/blog/turn-server/
+- coturn configuration example: https://gist.github.com/axbg/c947f838387998d81664036a7beb3c27
+- Find your ICE candidates: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+---
+title: tools
+---
+# Facetime, but with (way) less features
+demo time
+
+To showcase the concepts described during the session, I built an app 
+
+It allows a *couple* of users to join a live session where they have the option to share both their webcam and microphone
+
+A user will initiate a room and will receive a randomly generated ID that should be used by the other users to join the same room
+
+The app is built using:
+- React
+- Express
+- Socket.io (WebSocket)
+- **WebRTC**
+
+(if you think that's because I reused a lot of code from *watchme* that's because it's true)
+---
+title: tools
+layout: center
+---
+# the *problem* in the room
+---
+title: tools
+---
+# P2P limitations
+
+P2P has a lot of benefits, but one important caveat: it does not scale well
+
+The previous example could handle a small group of people, but after a dozen, the number of parallel connections becomes unmanageable
+
+Each user has handle n-1 connections, and the total number of connections can be computed as n * (n - 1) / 2
+
+This is the reason why, in order to build robust real-time media applications, P2P is often not enough
+
+To solve this issue, in addition to pure P2P topologies (seen below), WebRTC also supports client/server topologies to overcome some of the caveats
+
+<br>
+
+<div style="display: flex">
+  <div>
+    <img src="https://webrtcforthecurious.com/docs/images/08-one-to-one.png" />
+    <span>One-to-one</span>
+  </div>
+    <div>
+    <img src="https://webrtcforthecurious.com/docs/images/08-full-mesh.png" />
+    <span>Full Mesh</span>
+  </div>
+    <div>
+    <img src="https://webrtcforthecurious.com/docs/images/08-hybrid-mesh.png" />
+    <span>Hybrid Mesh</span>
+  </div>
+</div>
+---
+title: tools
+---
+# Client/Server topologies
+
+- Selective Forward Unit (SFU) 
+<div style="display: flex">
+  <img src="https://webrtcforthecurious.com/docs/images/08-sfu.png" />
+</div>
+
+<br>
+- Multi-point Conferencing Unit (MCU 🦸‍♂️)
+<div style="display: flex">
+  <img src="https://webrtcforthecurious.com/docs/images/08-mcu.png" />
+</div>
+
+---
+title: tools
+---
+# One more thing
+
+- Although WebRTC is well known for media transmission, it can also be used to transmit raw data using a **DataChannel**
+
+- A DataChannel can handle any data, and can be used to transmit raw media in situations when specialized decoding methods are needed
+
+- Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negociation is not needed
+
+- The other steps of the connection process are the same
+
+```js {none|1|3|5|7-9|all}
+const peerConnection = new RTCPeerConnection(configurations);
+
+// establish connection
+
+const dataChannel = pc.createDataChannel("channel1");
+
+dataChannel.onMessage = (message) => { }
+dataChannel.onopen = () => { }
+dataChannel.onclose = () => { }
+```
+
+---
+title: tools
+layout: center
+---
+# that's it!
+WebRTC in a not-so-short-nor-exhaustive intro
+---
+title: tools
+layout: center
+---
+# thank you for being here
+
+<div style="color: #2c7a7b; position: absolute; left: 50%; transform: translate(-50%, 0);">
+  <h2>Q&A</h2>
+</div>
+
+<div style="color: #2c7a7b; position: absolute; left: 0; bottom: 0; margin-left: 10px;">
+  <span>Sibiu Web Meetup</span>
+</div>
+
+<div style="color: #2c7a7b; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%)">
+  <span>January 2025</span>
+</div>
+
+<div class="abs-br m-0 text-xl" style="color: #2c7a7b">
+  <span>axbg</span>
+  <a href="https://github.com/axbg" target="_blank" class="slidev-icon-btn">
+    <carbon:logo-github />
+  </a>
+</div>
