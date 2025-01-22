@@ -164,9 +164,9 @@ layout: two-cols
 # watchme
 web native real-time media share
 
-available [here](https://git@github.com:devclub1/watchme)
+Available [here](https://git@github.com:devclub1/watchme)
 
-built on:
+Built on:
 - TypeScript
 - React
 - Express
@@ -182,7 +182,7 @@ title: What is WebRTC?
 layout: image-right
 image: ./assets/webrtc-logo.png
 ---
-# what is WebRTC?
+# What is WebRTC?
 
 <br>
 
@@ -358,7 +358,7 @@ The details about the NAT are not known to the peers
 
 While they can create NAT mappings by sending outbound requests, they are not aware of their own Internet-facing address
 
-This is where the Session Traversel Utilities for NAT **(STUN)** protocol comes into play
+This is where the Session Traversal Utilities for NAT **(STUN)** protocol comes into play
 
 To learn more about their external IP, each peer will connect to a STUN server and will receive information about the external IP mapping done by NAT
 
@@ -467,7 +467,7 @@ const configuration = {'iceServers': [{'urls': ['stun:stun.l.google.com:19302', 
 const peerConnection = new RTCPeerConnection(configuration);
 ```
 
-Before creating an offer, the peer instance should be instructed how to handle upcoming connections
+Before creating an offer, the peer instance should be instructed on how to handle upcoming connections
 
 The order in which these configurations are written is not important, as they will be triggered after the offer is sent
 
@@ -552,7 +552,7 @@ title: Accepting an offer
 
 <v-clicks>
 
-When an offer is received, the receiver creates its own peer instance following a very similar set of steps, accepts the offer and sends the answer back:
+When an offer is received, the receiver creates its own peer instance following a very similar set of steps, accepts the offer, and sends the answer back:
 ```js {none|1|2-6|8|10-11|13|all}
 webSocket.on("receiving-offer", async (payload) => {
   const peerConnection = new RTCPeerConnection(configurations);
@@ -580,7 +580,7 @@ the perfect candidate
 
 <v-clicks>
 
-The only thing that was not covered in the until now is handling remote ICE candidates
+The only thing that was not covered until now is handling remote ICE candidates
 
 Besides gathering and sending its own ICE candidates to the signaling server, each peer should prepare to receive the ICE candidates of the opposite side:
 
@@ -610,9 +610,9 @@ signing new contracts
 
 <v-clicks>
 
-It happens frequently for the peers to want to remove some media tracks or add new ones after the connection is established
+It happens frequently for peers to want to remove some media tracks or add new ones after the connection is established
 
-For soft removal, a solution is to disable, keeping the option to enable it again later:
+For soft removal, a solution is to disable it, keeping the option to enable it again later:
 
 ```js {none|1|2|all}
 if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
@@ -620,7 +620,7 @@ if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
 }
 ```
 
-Adding or removing tracks trigger the renegotiation process which should establish a new pair of offer and answer:
+Adding or removing tracks triggers the renegotiation process which should establish a new pair of offer/answer:
 
 ```js {none|1|2-5|all}
 peerConnection.onnegotiationneeded = () => {
@@ -700,9 +700,9 @@ title: Useful resources
 - Find your ICE candidates: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
 - Slidev: for cool, code-based presentations: https://sli.dev/
 ---
-title: Facetime, but with way less features
+title: Facetime, but with way fewer features
 ---
-# Facetime, but with (way) less features
+# Facetime, but with (way) fewer features
 demo time
 
 <v-clicks>
@@ -795,7 +795,7 @@ and more data
 
 Although WebRTC is well known for media transmission, it can also be used to transmit raw data using a **DataChannel**
 
-A DataChannel can handle any data, and can be used to transmit raw media when specialized decoding methods are needed
+A DataChannel can handle any data and can be used to transmit raw media when specialized decoding methods are needed
 
 Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negotiation is not needed
 
