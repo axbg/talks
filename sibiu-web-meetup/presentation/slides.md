@@ -2,7 +2,7 @@
 theme: ./theme
 themeConfig:
   primary: '#2c7a7b'
-background: https://plus.unsplash.com/premium_photo-1682125235036-d1ab54136ff4?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+background: ./assets/intro.avif
 title: "WebRTC: start here"
 info: |
   ## WebRTC: start here
@@ -83,13 +83,13 @@ layout: default
 # Why did this talk happen?
 
 <div style="display: flex; justify-content: center">
-  <img src="https://secure.meetupstatic.com/photos/event/d/a/7/e/600_523855934.webp?w=384">
+  <img src="./assets/hda_meetup.avif">
 </div>
 
 ---
 title: WebRTC? How come?
 layout: image-right
-image: https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1624&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+image: ./assets/presentation.avif
 ---
 # WebRTC? How come?
 <br><br>
@@ -111,12 +111,13 @@ title: yes, but
 ### what do you do if you encounter something like this in 2025?
 
 <div v-click style="display: flex; justify-content: center">
-  <img src="https://res.cloudinary.com/rsc/image/upload/b_rgb:FFFFFF,c_pad,dpr_1.0,f_auto,q_auto,w_700/c_pad,w_700/F6659557-01" />
+  <img src="./assets/vga.webp" />
 </div>
 
 ---
 title: yes, but 2
 ---
+
 <br>
 <div v-click style="display: flex; justify-content: center;">
   <img src="./assets/crush.png" />
@@ -138,7 +139,7 @@ layout: center
 ---
 title: dream app
 layout: image-right
-image: https://images.unsplash.com/photo-1518773553398-650c184e0bb3?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
+image: ./assets/code.avif
 ---
 # my dream app
 <br>
@@ -179,7 +180,7 @@ built on:
 ---
 title: What is WebRTC?
 layout: image-right
-image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
+image: ./assets/webrtc-logo.png
 ---
 # what is WebRTC?
 
@@ -194,7 +195,7 @@ image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 ---
 title: WebRTC for the Curious
 layout: image-right
-image: https://avatars.githubusercontent.com/u/68770129?s=280&v=4
+image: ./assets/webrtc-cover.png
 ---
 # WebRTC for the Curious
 
@@ -211,7 +212,7 @@ title: Underlying technologies
 # WebRTC: underlying technologies
 
 <div style="display: flex; justify-content: center">
-  <img width="80%" src="https://webrtcforthecurious.com/docs/images/01-webrtc-agent.png" />
+  <img width="80%" src="./assets/webrtc-tech.png" />
 </div>
 <!--
 SCTP: Stream Control Transmission Protocol
@@ -243,7 +244,7 @@ Let's take a closer look at each of them
 ---
 title: Signaling 1
 layout: image-right
-image: https://img.freepik.com/free-photo/hands-gently-touching-each-other_23-2147795505.jpg?t=st=1737568796~exp=1737572396~hmac=afdfbb0f8d3e9db08214d4b3fdb4d3919c8b8650f63a705b39f693743ee9a27d&w=900
+image: ./assets/hands.jpg
 ---
 # Signaling
 finding each other
@@ -321,7 +322,7 @@ NAT also makes it possible for external devices to connect to agents in a privat
 
 ::right::
 <div style="display: flex; height: 80%;justify-content: center">
-  <img  src="https://webrtcforthecurious.com/docs/images/03-nat-mapping.png" />
+  <img  src="./assets/nat-mapping.png" />
 </div>
 ---
 title: NATs
@@ -365,7 +366,7 @@ To learn more about their external IP, each peer will connect to a STUN server a
 
 ::right::
 <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-  <img src="https://www.datocms-assets.com/41207/1645049022-stun.png?w=694&h=694&q=40" />
+  <img src="./assets/peers.png" />
 </div>
 
 ---
@@ -413,7 +414,7 @@ Unlike the STUN server, which does not establish a permanent connection with the
 
 ::right::
 <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-  <img src="https://runby.com/system/inserted_images/images/000/000/574/blog_export/TURN2.png?1488875873" />
+  <img src="./assets/turn.png" />
 </div>
 
 ---
@@ -423,14 +424,16 @@ layout: center
 # enough talk, show me some code
 visiting the main browser WebRTC APIs
 ---
-title: something
+title: Capturing user media
 ---
 # Capturing user media
 <br>
 
+<v-clicks>
+
 Before exchanging media streams, a client should *capture* them
 
-Most browsers support the standard *Media Capture and Streams API* (MediaStream API) which allows the capture of webcams, screens, device audio and microphones
+Most browsers support the standard *Media Capture and Streams API* (MediaStream API) which allows the capture of webcams, screens, device audio, and microphones
 
 ```js {none|1-2|3-4|all}
 // captures webcam and microphone
@@ -443,14 +446,19 @@ The user will be prompted for consent for each captured stream
 
 The MediaStream API was developed together with the WebRTC API, so the captured media streams can seamlessly be used as sources in the live media exchange process
 
-Each track can receive as parameter an object representing the [*constraints*](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) that should be applied
+Each track can receive as a parameter an object representing the [*constraints*](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) that should be applied
+
+</v-clicks>
+
 ---
 title: something
 ---
 # Preparing connection
 peers and stream
 
-Then, the initiating client is ready to create a peer instance
+<v-clicks>
+
+Then, the initiating client is ready to create a peer instance:
 ```js {none|1-4|5|all}
 // the configuration object is used to configure the ICE process
 // in a simple implementation, it just specifies which STUN/TURN servers to use
@@ -461,9 +469,9 @@ const peerConnection = new RTCPeerConnection(configuration);
 
 Before creating an offer, the peer instance should be instructed how to handle upcoming connections
 
-The order in which these configurations are written is not important, as they will be used only after the offer is sent
+The order in which these configurations are written is not important, as they will be triggered after the offer is sent
 
-First thing could be to bind the captured user media stream to the peer instance
+First thing could be to bind the captured user media stream to the peer instance:
 ```js {none|all}
 capturedUserMedia.getTracks().forEach(track => {
   // the type of each added track can be determined by the 'kind' property (e.g: video, audio)
@@ -471,40 +479,49 @@ capturedUserMedia.getTracks().forEach(track => {
   peerConnection.addTrack(track, capturedUserMedia);
 });
 ```
+
+</v-clicks>
+
 ---
-title: something
+title: Preparing connection
 ---
 # Preparing connection
 handling events
 
-Each WebRTC interaction is handled in an event-like manner: each peer will do an action, while the other will specify ahead of time it's behavior for each important event
+<v-clicks>
 
-So, the peer should be instructed what to do when it receives tracks from the remote peer
+Each WebRTC interaction is handled in an event-like manner: each peer will do an action, while the other will specify ahead of time its behavior for each event
+
+So, the peer should be instructed what to do when it receives tracks from the remote peer:
 ```js {none|all}
 peerConnection.ontrack = (event) => {
   // even though individual tracks are received, we are referencing to the stream
-  // this way, both video and audio tracks could be handled by the same video HTML element
+  // this way, both video and audio tracks could be handled by the same HTML video element
   videoElement.srcObject = event.streams[0];
 };
 ```
 
-When the offer is created, WebRTC will start gathering ICE candidates and will send each one of them to the connecting peer through the signaling server
+When the offer is created, WebRTC will start gathering ICE candidates and will send each one of them to the connecting peer through the signaling server:
 ```js {none|all}
 peerConnection.onicecandidate = (event) => {
   if (event.candidate) {
     // generic method that will rely on the signaling server
     sendToSignalingServer(event.candidate)
   }
-}};
+};
 ```
+
+</v-clicks>
 ---
-title: something
+title: Preparing connection 2
 ---
 # Preparing connection
-#
+give me an offer
 
-Each peer is informed each time the state of the upcoming connection will change
-```js {none|1|3,5,7,9|all}
+<v-clicks>
+
+Peers are informed each time the state of the connection changes:
+```js {none|1,2|3,5,7,9|all}
 peerConnection.onconnectionstatechange = () => {
   switch (peerConnection.connectionState) {
     case "connected":
@@ -515,22 +532,27 @@ peerConnection.onconnectionstatechange = () => {
       //...
     case "failed":
       //...
-}}
+}};
 ```
-Now, the initiating peer is ready to create an offer, bind it to itself and send it to the other peer through the signaling server
+
+Now the initiating peer is ready to create an offer and send it to the other peer through the signaling server:
 ```js {none|1|2-5|7|all}
 const offer = await peerConnection.createOffer();
 await peerConnection.setLocalDescription(offer);
 
 sendToSignalingServer(offer);
 ```
+
+</v-clicks>
 ---
-title: something
+title: Accepting an offer
 ---
 # Accepting an offer
-#
+<br>
 
-When an offer arrives, the receiving end creates its own peer instance, following a very similar set of steps, it accepts the offer and sends back the answer
+<v-clicks>
+
+When an offer is received, the receiver creates its own peer instance following a very similar set of steps, accepts the offer and sends the answer back:
 ```js {none|1|2-6|8|10-11|13|all}
 webSocket.on("receiving-offer", async (payload) => {
   const peerConnection = new RTCPeerConnection(configurations);
@@ -545,17 +567,23 @@ webSocket.on("receiving-offer", async (payload) => {
   await peerConnection.setLocalDescription(answer);
 
   sendToSignalingServer(answer);
-})
+});
 ```
+
+</v-clicks>
+
 ---
-title: something
+title: Breaking the ICE
 ---
 # Breaking the ICE
-#
+the perfect candidate
 
-The only thing that was not covered in the previous example is receiving  of ICE candidates
+<v-clicks>
 
-Besides gathering and sending its own ICE candidates to the signaling server, each peer should prepare to receive the ICE candidates of the opposite side
+The only thing that was not covered in the until now is handling remote ICE candidates
+
+Besides gathering and sending its own ICE candidates to the signaling server, each peer should prepare to receive the ICE candidates of the opposite side:
+
 ```js {none|1|2-4|all}
 webSocket.on("ice-candidate", (payload) => {
   peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate))
@@ -564,48 +592,59 @@ webSocket.on("ice-candidate", (payload) => {
 });
 ```
 
-Starting with the first candidate that arrives, WebRTC starts to create and test all the possible **pairs**
+Starting with the first candidate that arrives, WebRTC creates and tests all the possible **pairs**
 
-Once the best pair is found, the connection state is promoted to **connected** and the negociated streams are exchanged P2P
+Once the best pair is found, the connection state is promoted to **connected** and the negotiated streams are exchanged P2P
 
 <div v-click style="display: flex; justify-content: center">
   <p style="font-size: 5rem">🎆</p>
 </div>
 
+</v-clicks>
+
 ---
-title: something
+title: Renegotiation
 ---
 # Renegotiation
-#     
+signing new contracts
+
+<v-clicks>
+
 It happens frequently for the peers to want to remove some media tracks or add new ones after the connection is established
 
-For soft removal, a solution is to disable, keeping the option to enable it again later
+For soft removal, a solution is to disable, keeping the option to enable it again later:
+
 ```js {none|1|2|all}
 if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
   capturedUserMedia.getVideoTracks()[0].enabled = false;
 }
 ```
 
-Adding or removing tracks trigger the renegotiation process which should establish a new pair of offer and answer
-```js {none|1|2-5|8|all}
+Adding or removing tracks trigger the renegotiation process which should establish a new pair of offer and answer:
+
+```js {none|1|2-5|all}
 peerConnection.onnegotiationneeded = () => {
   const offer = await peerConnection.createOffer();
   // make sure to reuse the existing peer on both ends
   await peerConnection.setLocalDescription(offer);
-
   sendToSignalingServer(offer);
 }
 // modify the media tracks associated with the peerConnection to trigger the renegotiation
 ```
 
-By default, the ICE connection will not be modified, but a peer can request that by toggling the **iceRestart** parameter
+By default, the ICE connection will not be modified, but a peer can request it by toggling the **iceRestart** parameter
 
+</v-clicks>
 
 ---
-title: debugging
+title: Renegotiation 2
 ---
 # Renegotiation
-On the receiving end, the peer should also be reused, as most of the times the process will happen seamlessly, in the background, without triggering a request for a new connection
+beware the glare
+
+<v-clicks>
+
+On the receiving end, the peer should also be reused: 
 
 ```js {none|1|2-5|8|all}
 webSocket.on("receiving-offer", async (payload) => {
@@ -625,22 +664,30 @@ webSocket.on("receiving-offer", async (payload) => {
 
 Renegotiation can be triggered by both ends, and when both ends emit an offer at the same time, the ICE state machine could be upset
 
-This is known as the **glare problem** and there are [a ways to handle it beautifully](https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/)
+This is known as the **glare problem** and there are [ways to handle it beautifully](https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/)
+
+</v-clicks>
 
 ---
-title: debugging
+title: Watching data flow
 ---
-# Watching data flow (and debugging it)
+# Watching data flow
+and debugging it
+
+<v-clicks>
 
 Most browsers offer similar interfaces for viewing and debugging active and recently closed WebRTC connections
 
-For Chromium-based browsers: chrome://webrtc-internals/
+- For Chromium-based browsers: **chrome://webrtc-internals/**
+- For Firefox: **about:webrtc**
 
-For Firefox: about:webrtc
+<div style="display: flex; justify-content: center;">
+  <img width="60%" src="./assets/webrtc-internals.png"/>
+</div>
+</v-clicks>
 
-- imagine webrtc internals
 ---
-title: tools
+title: Useful resources
 ---
 # Useful resources
 
@@ -651,17 +698,20 @@ title: tools
 - How to set up a TURN server using coturn: https://gabrieltanner.org/blog/turn-server/
 - coturn configuration example: https://gist.github.com/axbg/c947f838387998d81664036a7beb3c27
 - Find your ICE candidates: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+- Slidev: for cool, code-based presentations: https://sli.dev/
 ---
-title: tools
+title: Facetime, but with way less features
 ---
 # Facetime, but with (way) less features
 demo time
 
-To showcase the concepts described during the session, I built an app 
+<v-clicks>
 
-It allows a *couple* of users to join a live session where they have the option to share both their webcam and microphone
+To showcase the concepts described during the session, I built an app *(another one)*
 
-A user will initiate a room and will receive a randomly generated ID that should be used by the other users to join the same room
+A *couple* of users can join a live session where they can share both their webcam and microphone
+
+A user will start a room and will receive a randomly generated ID that should be used by the other users to join the same room
 
 The app is built using:
 - React
@@ -670,72 +720,88 @@ The app is built using:
 - **WebRTC**
 
 (if you think that's because I reused a lot of code from *watchme* that's because it's true)
+
+</v-clicks>
 ---
-title: tools
+title: the problem in the room
 layout: center
 ---
 # the *problem* in the room
----
-title: tools
----
-# P2P limitations
 
-P2P has a lot of benefits, but one important caveat: it does not scale well
+<div style="display: flex; justify-content: center;">
+<i style="font-size: 3rem">🐘</i>
+</div>
+---
+title: P2P downside
+---
+# P2P downside
+(a big one)
+
+<v-clicks>
+
+P2P has a lot of benefits, but one important downside: it does not scale well
 
 The previous example could handle a small group of people, but after a dozen, the number of parallel connections becomes unmanageable
 
-Each user has handle n-1 connections, and the total number of connections can be computed as n * (n - 1) / 2
+Each user must handle n-1 connections, and the total number of connections can be computed as n * (n - 1) / 2
 
-This is the reason why, in order to build robust real-time media applications, P2P is often not enough
+This is the reason why, to build robust real-time media applications, P2P is often not enough
 
-To solve this issue, in addition to pure P2P topologies (seen below), WebRTC also supports client/server topologies to overcome some of the caveats
-
-<br>
-
+To solve this issue, in addition to pure P2P topologies *(see below)*, WebRTC supports client/server topologies
+<br><br>
 <div style="display: flex">
   <div>
-    <img src="https://webrtcforthecurious.com/docs/images/08-one-to-one.png" />
+    <img src="./assets/one-to-one.png" />
     <span>One-to-one</span>
   </div>
     <div>
-    <img src="https://webrtcforthecurious.com/docs/images/08-full-mesh.png" />
+    <img src="./assets/full-mesh.png" />
     <span>Full Mesh</span>
   </div>
     <div>
-    <img src="https://webrtcforthecurious.com/docs/images/08-hybrid-mesh.png" />
+    <img src="./assets/hybrid-mesh.png" />
     <span>Hybrid Mesh</span>
   </div>
 </div>
+
+</v-clicks>
+
 ---
-title: tools
+title: Client/Server topologies
 ---
 # Client/Server topologies
 
+<v-clicks>
+
 - Selective Forward Unit (SFU) 
 <div style="display: flex">
-  <img src="https://webrtcforthecurious.com/docs/images/08-sfu.png" />
+  <img src="./assets/sfu.png" />
 </div>
 
-<br>
 - Multi-point Conferencing Unit (MCU 🦸‍♂️)
 <div style="display: flex">
-  <img src="https://webrtcforthecurious.com/docs/images/08-mcu.png" />
+  <img src="./assets/mcu.png" />
 </div>
 
+</v-clicks>
+
 ---
-title: tools
+title: DataChannels
 ---
 # One more thing
+and more data
 
-- Although WebRTC is well known for media transmission, it can also be used to transmit raw data using a **DataChannel**
+<v-clicks>
 
-- A DataChannel can handle any data, and can be used to transmit raw media in situations when specialized decoding methods are needed
+Although WebRTC is well known for media transmission, it can also be used to transmit raw data using a **DataChannel**
 
-- Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negotiation is not needed
+A DataChannel can handle any data, and can be used to transmit raw media when specialized decoding methods are needed
 
-- The other steps of the connection process are the same
+Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negotiation is not needed
 
-```js {none|1|3|5|7-9|all}
+The other steps of the connection process are the same
+
+```js {none|1|3|5|7-9|11|all}
 const peerConnection = new RTCPeerConnection(configurations);
 
 // establish connection
@@ -745,16 +811,36 @@ const dataChannel = pc.createDataChannel("channel1");
 dataChannel.onMessage = (message) => { }
 dataChannel.onopen = () => { }
 dataChannel.onclose = () => { }
+
+dataChannel.send("hello there");
 ```
 
+</v-clicks>
+
 ---
-title: tools
+title: that's it
 layout: center
 ---
 # that's it!
 WebRTC in a not-so-short-nor-exhaustive intro
 ---
-title: tools
+title: Image sources
+---
+# Pictures
+
+- Intro: [Getty Images](https://unsplash.com/photos/colorful-bright-image-of-female-hand-holding-old-fashioned-green-colored-phone-picking-up-handset-isolated-over-orange-background-concept-of-pop-art-vintage-things-mix-old-and-modernity-2Oj9tGznf5k)
+- Slide 5: [Teemu Paanen](https://unsplash.com/photos/person-discussing-while-standing-in-front-of-a-large-screen-in-front-of-people-inside-dim-lighted-room-bzdhc5b3Bxs)
+- Slide 9: [Pankaj Patel](https://unsplash.com/photos/turned-on-monitor-displaying-programming-language-u2Ru4QBXA5Q)
+- Slide 13: [WebRTC for the Curious](https://webrtcforthecurious.com/docs/01-what-why-and-how/)
+- Slide 15: [Freepik](https://www.freepik.com/free-photo/hands-gently-touching-each-other_2111016.htm#fromView=keyword&page=1&position=2&uuid=b92cd659-cd23-48d4-b100-24975b99aab0&query=Touching+Hands)
+- Slide 18: [WebRTC for the Curious](https://webrtcforthecurious.com/docs/03-connecting/)
+- Slide 22: [Medialooks](https://support.medialooks.com/hc/en-us/articles/360000225451-TURN-server-deployment-and-usage)
+- Slide 32: [WebRTC For Developers](https://www.webrtc-developers.com/debugging-webrtc-in-the-browsers/)
+- Slide 36: [WebRTC for the Curious](https://webrtcforthecurious.com/docs/08-applied-webrtc/)
+- Slide 37: [WebRTC for the Curious](https://webrtcforthecurious.com/docs/08-applied-webrtc/)
+
+---
+title: Q&A
 layout: center
 ---
 # thank you for being here
