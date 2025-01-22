@@ -44,7 +44,7 @@ A gentle introduction to the real-time communication standard of the web
 </style>
 
 ---
-title: Personal intro
+title: Personal Intro
 layout: image-right
 image: ./assets/headshot.jpeg
 ---
@@ -53,78 +53,111 @@ image: ./assets/headshot.jpeg
 
 <br><br><br><br>
 
-- 🧑‍💻 Software Engineering Specialist @ Accenture
-- 🧑‍💻 Technical Trainer @ Devmind
-- 🧑‍💻 Teaching Assistant @ CSIE ASE
+- 👨🏻‍💻 Software Engineering Specialist @ Accenture
+- 🧑🏻‍💼 Technical Trainer @ Devmind
+- 🧑🏻‍🏫 Teaching Assistant @ CSIE ASE
 
 <br><br><br><br>
-<br><br><br>
+<br><br>
 
-You can find all my links [here](https://github.com/axbg)
+Find my open-source projects on GitHub: @axbg
+<br>
+Check my articles: [encapsulated.axbg.cloud](https://encapsulated.axbg.cloud)
+
 ---
-title: webrtc
+title: Talk Intro 1
 layout: default
 ---
-# why did this talk happen?
+# Why did this talk happen?
 
 <br><br>
 
-<div style="display: flex; justify-content: center">
-  <img v-click src="./assets/mail.png" height="200px">
+<div v-click style="display: flex; justify-content: center">
+  <img src="./assets/mail.png" height="200px">
 </div>
+
 ---
-title: webrtc
+title: Talk Intro 2
 layout: default
 ---
-# how did this talk happen?
+# Why did this talk happen?
 
 <div style="display: flex; justify-content: center">
   <img src="https://secure.meetupstatic.com/photos/event/d/a/7/e/600_523855934.webp?w=384">
 </div>
+
 ---
-title: webrtc
+title: WebRTC? How come?
 layout: image-right
 image: https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1624&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
 ---
-# WebRTC? How?
+# WebRTC? How come?
 <br><br>
+
+<v-clicks>
 
 - Teaching stuff is cool, but you have to talk a lot
 - Talking is (often) boring (for the listener)
 - You have to **present** something for the audience to, **hopefully**, get less bored
-- So, most of the times, you will use a **projector** to share some kind of slides
+- So, most of the time, you will use a **projector** to share some kind of **content**
+
+</v-clicks>
+
 ---
-title: webrtc
+title: yes, but
 ---
 # yes, but
 
 ### what do you do if you encounter something like this in 2025?
 
-<img src="https://res.cloudinary.com/rsc/image/upload/b_rgb:FFFFFF,c_pad,dpr_1.0,f_auto,q_auto,w_700/c_pad,w_700/F6659557-01" />
+<div v-click style="display: flex; justify-content: center">
+  <img src="https://res.cloudinary.com/rsc/image/upload/b_rgb:FFFFFF,c_pad,dpr_1.0,f_auto,q_auto,w_700/c_pad,w_700/F6659557-01" />
+</div>
+
 ---
-title: 'something'
+title: yes, but 2
+---
+<br>
+<div v-click style="display: flex; justify-content: center;">
+  <img src="./assets/crush.png" />
+</div>
+---
+title: How to solve this problem?
 layout: center
 ---
-# how to solve this problem?
+# How to solve this problem?
+
+<v-clicks>
 
 - the most reasonable solution: buy an adapter
-- my (not so reasonable) solution: build an app
+- the next most reasonable solution: use Zoom
+- my (not so reasonable) solution: **build an app**
+
+</v-clicks>
+
 ---
-title: 'something'
+title: dream app
 layout: image-right
 image: https://images.unsplash.com/photo-1518773553398-650c184e0bb3?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D
 ---
-# critical points
+# my dream app
+<br>
 
-<br><br>
+The plan is to build an application that I can use to share my screen seamlessly
 
 The application should be:
+
+<v-clicks>
+
 - easy to build
 - easy to deploy 
 - working on various clients
 - adaptable to all network conditions
+
+</v-clicks>
+
 ---
-title: 'something'
+title: watchme demo
 layout: two-cols
 ---
 # watchme
@@ -144,7 +177,7 @@ built on:
   <img src="./assets/logo-watchme.png" />
 </div>
 ---
-title: something
+title: What is WebRTC?
 layout: image-right
 image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 ---
@@ -153,13 +186,13 @@ image: https://miro.medium.com/v2/resize:fit:800/0*SuZh9kdJ58G-xtIt.png
 <br>
 
 - a free and open-source project that became a web standard
-- a collection technologies used together to achieve performant real-time peer-to-peer (P2P) transmissions using UDP
+- a collection of technologies used together to achieve performant real-time peer-to-peer (P2P) transmissions using UDP
 - a global standardization effort
 - a pragmatic approach that makes use of preexisting protocols
 - a secure-by-default way to exchange real-time media
 - a set of APIs that can be used to integrate real-time media exchange in web applications
 ---
-title: something
+title: WebRTC for the Curious
 layout: image-right
 image: https://avatars.githubusercontent.com/u/68770129?s=280&v=4
 ---
@@ -171,98 +204,131 @@ image: https://avatars.githubusercontent.com/u/68770129?s=280&v=4
 - available for free forever at [webrtcforthecurious.com](https://webrtcforthecurious.com/)
 - the main source of information for this talk
 - (yes, I had the same look when I managed to implement my first WebRTC demo)
+
 ---
-title: something
+title: Underlying technologies
 ---
 # WebRTC: underlying technologies
 
-<img src="https://webrtcforthecurious.com/docs/images/01-webrtc-agent.png" />
+<div style="display: flex; justify-content: center">
+  <img width="80%" src="https://webrtcforthecurious.com/docs/images/01-webrtc-agent.png" />
+</div>
+<!--
+SCTP: Stream Control Transmission Protocol
+DTLS: Datagram Transport Layer Security
+SRTP: Secure Real-time Transport Protocol
+RTCP: Real Time Control Protocol
+RTP: Real Time Protocol
+-->
 ---
-title: something
+title: Components & processes
 ---
-# Components & Processes
+# Components & processes
 <br>
 
-The underlying technologies, which represent the fabric of WebRTC, are used in a specific order to exchange real-time media between multiple clients
+<v-clicks>
+
+The underlying technologies, which represent the fabric of WebRTC, are used in a specific order to exchange real-time media between two clients
 
 For a connection to be established, each of these processes must succeed:
 
 - Signaling
-  - Media negociation
+  - Media negotiation
   - Discovery
-
 - Establishing connection
 
 Let's take a closer look at each of them
+
+</v-clicks>
 ---
-title: something
+title: Signaling 1
 layout: image-right
+image: https://img.freepik.com/free-photo/hands-gently-touching-each-other_23-2147795505.jpg?t=st=1737568796~exp=1737572396~hmac=afdfbb0f8d3e9db08214d4b3fdb4d3919c8b8650f63a705b39f693743ee9a27d&w=900
 ---
 # Signaling
 finding each other
 
-WebRTC aims to establish a P2P connection between each of the participants
+<v-clicks>
+
+WebRTC aims to establish a P2P connection between two participants (we'll call them **peers**)
 
 As in all P2P systems, before the connection can be established, a mechanism that allows the peers to find each other is required
 
-Even though it's the first step, *WebRTC does not cover signaling*: each implementer can choose how the peers will discover each other
+Funny enough, even though it's the first step, **WebRTC does not cover signaling**: each implementer can choose how the peers will discover each other
 
 The most common approach is to use a *WebSocket* server that governs the initial discovery process
 
--- ceva imagine cu peers
+</v-clicks>
+
 ---
-title: something
+title: Signaling 2
 ---
 # Signaling
 exchanging data about data
 
-Signaling starts with an exchange between the peers: one of them will initiate the process by sending an **offer**, while the other, after reviewing the offer, responds with an **answer**
+<v-clicks>
 
-These objects, which are routed through the signaling server, contain all the information required for the peers to understand **what media will be exchanged**
+Signaling starts with an exchange between the peers:
+- one of them will initiate the process by sending an **offer**
+- after reviewing the offer the other one responds with an **answer**
 
-No connection is established for the moment, but if the negociation between the peers does not succeed, the process is dropped
+These objects, which are exchanged through the signaling server, contain all the information required for the peers to understand **what type of media will be streamed**
+
+No connection is established at the moment, but if the negotiation between the peers does not succeed, the process is dropped
 
 The *offer* and the *answer* are part of the *Session Description Protocol* (SDP) which is used internally by WebRTC
+
+</v-clicks>
 ---
-title: something
+title: Signaling 3
 ---
 # Signaling
 a direct path
 
+<v-clicks>
+
 The peers know what media will be exchanged, but they are not connected yet
 
-Besides the initial process, where a centralized "meeting" point is used, WebRTC uses P2P connections 
+Besides the initial process, where a centralized "meeting" point is used, WebRTC aims to use P2P connections 
 
 The main advantages are:
 - Lower latency
 - Lower infrastructure costs
 - Increased security (as data is not processed by any central server)
 
-The advantages comes with some caveats, as establishing a direct connection between two peers is not a trivial task
+The advantages come with some caveats, as establishing a direct connection between two peers in a huge network like the Internet is not a trivial task
+
+</v-clicks> 
+
 ---
-title: something
+title: Signaling 4
 layout: two-cols
 ---
 # Signaling
 real-world networking issues
 
-Unlike client/server systems, where the server is directly accessible on the internet, peers in P2P connections might not share the same network or have public IP addresses
+<v-clicks>
+
+Unlike the more common client/server systems, where the server is directly accessible on the Internet, peers in P2P connections might not share the same network or have public IP addresses
 
 In such cases, Network Address Translation (NAT) is the key mechanism that enables connections
 
-NAT mapping allows devices on a private network to communicate with other devices on the Internet by translating their private IP addresses into a single public IP address
+NAT mapping allows devices on a private network to communicate with other devices on the Internet by translating their private IP addresses into a public IP address
 
-NAT also makes it possible for external devices to connect to agents in a private network using an already established mapping
+NAT also makes it possible for external devices to connect to agents in a private network using an existing mapping
+
+</v-clicks>
 
 ::right::
-<div style="display: flex">
+<div style="display: flex; height: 80%;justify-content: center">
   <img  src="https://webrtcforthecurious.com/docs/images/03-nat-mapping.png" />
 </div>
 ---
-title: something
+title: NATs
 ---
-# Signaling
-a lot of NATs
+# The world is NATs
+
+<v-clicks>
 
 NATs come in different flavors, and sometimes they can block peers from establishing a connection
 
@@ -274,29 +340,41 @@ The same classification can be applied to mapping filtering behaviors
 
 **For WebRTC to work using P2P, at least one of the peers should have an endpoint-independent mapping**
 
-In case P2P connection is not possible, WebRTC can function in a relayed way
+In case P2P connection is not possible, WebRTC can still function using a relay server
+
+</v-clicks> 
+
 ---
-title: something
-layout: image-right
-image: https://www.datocms-assets.com/41207/1645049022-stun.png?w=694&h=694&q=40
+title: Signaling 
+layout: two-cols
 ---
 # Signaling
 who am I? (a pragmatic question)
 
+<v-clicks>
 
-The details about the NAT are not known by the peers
+The details about the NAT are not known to the peers
 
-While they can create NAT mappings by sending outbound requests, they are not aware of their own Internet-facing IPs
+While they can create NAT mappings by sending outbound requests, they are not aware of their own Internet-facing address
 
-This is where the Session Traversel Utilities for NAT (STUN) protocol comes into play
+This is where the Session Traversel Utilities for NAT **(STUN)** protocol comes into play
 
-To learn more about their external IP, each peer will connect to a STUN server and will receive information about the external IP associated to itself by the NAT
+To learn more about their external IP, each peer will connect to a STUN server and will receive information about the external IP mapping done by NAT
+
+</v-clicks> 
+
+::right::
+<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+  <img src="https://www.datocms-assets.com/41207/1645049022-stun.png?w=694&h=694&q=40" />
+</div>
 
 ---
-title: something
+title: Establishing connection
 ---
 # Establishing connection
 ICE ICE baby
+
+<v-clicks> 
 
 To establish a connection, WebRTC uses the Interactive Connectivity Establishment (ICE) technology
 
@@ -307,23 +385,39 @@ The candidates are exchanged using the signaling server and ICE starts to group 
 ICE tries to establish a connection between the members of each pair, and, based on connectivity and performance, selects a pair that becomes the *selected candidate pair* that will be used for the rest of the session
 
 The peers are now P2P connected, and they can start to exchange media respecting the *offers* that they agreed upon
+
+<div style="display: flex; justify-content: center;">
+  <i style="font-size: 5rem">🔗</i>
+</div>
+
+</v-clicks>
+
 ---
-title: something
-layout: image-right
-image: https://runby.com/system/inserted_images/images/000/000/574/blog_export/TURN2.png?1488875873
+title: Establishing connection 2
+layout: two-cols
 ---
 # Establishing connection
 rely on relaying
 
-If a direct connection cannot be established due to the restrictive nature of the NATs, direct ICE connection will fail as well
+<v-clicks>
+
+If a direct connection cannot be established due to the restrictive nature of the NATs, a direct ICE connection will fail as well
 
 In this situation, ICE will use the **Traversal Using Relays around NAT (TURN)** protocol to mediate the exchange through a **relay server**
 
 Unlike the STUN server, which does not establish a permanent connection with the peers, the TURN server will receive traffic from each peer and will ensure the correct retransmission
 
 **A robust WebRTC integration should always use TURN as a fallback mechanism**
+
+</v-clicks>
+
+::right::
+<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+  <img src="https://runby.com/system/inserted_images/images/000/000/574/blog_export/TURN2.png?1488875873" />
+</div>
+
 ---
-title: something
+title: enough talk, show me the code
 layout: center
 ---
 # enough talk, show me some code
@@ -501,7 +595,7 @@ peerConnection.onnegotiationneeded = () => {
 
   sendToSignalingServer(offer);
 }
-// modify the media tracks associated with the peerConnection to trigger the renegociation
+// modify the media tracks associated with the peerConnection to trigger the renegotiation
 ```
 
 By default, the ICE connection will not be modified, but a peer can request that by toggling the **iceRestart** parameter
@@ -637,7 +731,7 @@ title: tools
 
 - A DataChannel can handle any data, and can be used to transmit raw media in situations when specialized decoding methods are needed
 
-- Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negociation is not needed
+- Each peer can handle 65534 DataChannels, and they can be opened and closed at any time, as negotiation is not needed
 
 - The other steps of the connection process are the same
 
