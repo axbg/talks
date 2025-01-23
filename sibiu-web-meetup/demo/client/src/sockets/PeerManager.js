@@ -9,10 +9,10 @@ class PeerManager {
     #peerConnections = {};
 
     constructor() {
-        this.#socket = io(signalingServer);
     }
 
     connect(channelName, configurations, localWebcamStream, setIsActive, setRemoteVideoStreams) {
+        this.#socket = io(signalingServer);
         this.#socket.connect();
         this.#localWebcamStream = localWebcamStream;
         this.joinChannel(channelName, configurations, setIsActive, setRemoteVideoStreams);
@@ -68,11 +68,12 @@ class PeerManager {
                             console.log("Established connection!");
                             break;
                         case "disconnected":
+                            this.handlePeerDisconnect(peerConnection, socketId, setRemoteVideoStreams);
+
                             if (this.#shouldDisconnect) {
                                 console.log("Disconnected gracefully triggered locally");
                             } else {
                                 console.log("Unexpected disconnection triggered by remote peer");
-                                setRemoteVideoStreams(remoteStreams => Object.fromEntries(Object.entries(remoteStreams).filter(([key]) => key !== socketId)));
                                 break;
                             }
                     }
@@ -115,7 +116,7 @@ class PeerManager {
 
     async attachUserJoinedSocketHandlers(channelName, configurations, setIsActive, setRemoteVideoStreams) {
         this.#socket.on("webrtc-offer", async (payload) => {
-            console.log("Received offer from sharer");
+            console.log("Received offer from remote peer");
 
             const socketId = payload.from;
 
@@ -162,11 +163,12 @@ class PeerManager {
                         console.log("Established connection!");
                         break;
                     case "disconnected":
+                        this.handlePeerDisconnect(peerConnection, socketId, setRemoteVideoStreams);
+
                         if (this.#shouldDisconnect) {
                             console.log("Disconnected gracefully triggered locally");
                         } else {
                             console.log("Unexpected disconnection triggered by remote peer");
-                            setRemoteVideoStreams(remoteStreams => Object.fromEntries(Object.entries(remoteStreams).filter(([key]) => key !== socketId)));
                             break;
                         }
                 }
@@ -197,6 +199,11 @@ class PeerManager {
         });
     }
 
+    handlePeerDisconnect(peerConnection, socketId, setRemoteVideoStreams) {
+        delete this.#peerConnections[socketId];
+        setRemoteVideoStreams(remoteStreams => Object.fromEntries(Object.entries(remoteStreams).filter(([key]) => key !== socketId)));
+    }
+
     disconnect(setIsActive, setRemoteVideoStreams) {
         this.#socket.disconnect();
 
@@ -204,6 +211,7 @@ class PeerManager {
         setIsActive(false);
 
         Object.values(this.#peerConnections).forEach(peerConnection => peerConnection.close());
+        this.#peerConnections = {};
     }
 }
 
