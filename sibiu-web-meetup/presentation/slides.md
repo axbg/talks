@@ -110,7 +110,7 @@ title: yes, but
 
 ### what do you do if you encounter something like this in 2025?
 
-<div v-click style="display: flex; justify-content: center">
+<div style="display: flex; justify-content: center">
   <img src="./assets/vga.webp" />
 </div>
 
@@ -119,7 +119,8 @@ title: yes, but 2
 ---
 
 <br>
-<div v-click style="display: flex; justify-content: center;">
+
+<div style="display: flex; justify-content: center;">
   <img src="./assets/crush.png" />
 </div>
 ---
@@ -135,18 +136,22 @@ layout: center
 - my (not so reasonable) solution: **build an app**
 
 </v-clicks>
-
 ---
 title: dream app
 layout: image-right
 image: ./assets/code.avif
 ---
 # my dream app
+
 <br>
 
 The plan is to build an application that I can use to share my screen seamlessly
 
+<v-clicks>
+
 The application should be:
+
+</v-clicks>
 
 <v-clicks>
 
@@ -183,15 +188,19 @@ layout: image-right
 image: ./assets/webrtc-logo.png
 ---
 # What is WebRTC?
+Web Real-Time Communication
 
-<br>
+<v-clicks>
 
 - a free and open-source project that became a web standard
-- a collection of technologies used together to achieve performant real-time peer-to-peer (P2P) transmissions using UDP
+- a collection of technologies used together to achieve real-time peer-to-peer (P2P) transmissions using UDP
 - a global standardization effort
 - a pragmatic approach that makes use of preexisting protocols
 - a secure-by-default way to exchange real-time media
 - a set of APIs that can be used to integrate real-time media exchange in web applications
+
+</v-clicks>
+
 ---
 title: WebRTC for the Curious
 layout: image-right
@@ -201,7 +210,7 @@ image: ./assets/webrtc-cover.png
 
 <br><br>
 
-- an open-source book created by WebRTC implementers
+- an open-source book written by WebRTC implementers
 - available for free forever at [webrtcforthecurious.com](https://webrtcforthecurious.com/)
 - the main source of information for this talk
 - (yes, I had the same look when I managed to implement my first WebRTC demo)
@@ -290,7 +299,7 @@ a direct path
 
 The peers know what media will be exchanged, but they are not connected yet
 
-Besides the initial process, where a centralized "meeting" point is used, WebRTC aims to use P2P connections 
+Besides the initial process, when a centralized "meeting" point is used, WebRTC aims to use P2P connections 
 
 The main advantages are:
 - Lower latency
@@ -328,6 +337,8 @@ NAT also makes it possible for external devices to connect to agents in a privat
 title: NATs
 ---
 # The world is NATs
+
+<br>
 
 <v-clicks>
 
@@ -451,7 +462,7 @@ Each track can receive as a parameter an object representing the [*constraints*]
 </v-clicks>
 
 ---
-title: something
+title: Preparing connection
 ---
 # Preparing connection
 peers and stream
@@ -483,7 +494,7 @@ capturedUserMedia.getTracks().forEach(track => {
 </v-clicks>
 
 ---
-title: Preparing connection
+title: Preparing connection 2
 ---
 # Preparing connection
 handling events
@@ -513,7 +524,7 @@ peerConnection.onicecandidate = (event) => {
 
 </v-clicks>
 ---
-title: Preparing connection 2
+title: Preparing connection 3
 ---
 # Preparing connection
 give me an offer
@@ -536,7 +547,7 @@ peerConnection.onconnectionstatechange = () => {
 ```
 
 Now the initiating peer is ready to create an offer and send it to the other peer through the signaling server:
-```js {none|1|2-5|7|all}
+```js {none|1|2|4|all}
 const offer = await peerConnection.createOffer();
 await peerConnection.setLocalDescription(offer);
 
@@ -612,7 +623,7 @@ signing new contracts
 
 It happens frequently for peers to want to remove some media tracks or add new ones after the connection is established
 
-For soft removal, a solution is to disable it, keeping the option to enable it again later:
+For soft removal, a solution is to disable it, having the option to enable it again later:
 
 ```js {none|1|2|all}
 if (captureUserMedia && capturedUserMedia.getVideoTracks().length > 0) {
@@ -690,7 +701,9 @@ Most browsers offer similar interfaces for viewing and debugging active and rece
 title: Useful resources
 ---
 # Useful resources
+<br>
 
+- Slides and code: https://github.com/axbg/talks/tree/main/sibiu-web-meetup
 - The book: https://webrtcforthecurious.com/
 - Mozilla's WebRTC API documentation: https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API
 - Find out your NAT type: https://www.checkmynat.com/
@@ -711,7 +724,7 @@ To showcase the concepts described during the session, I built an app *(another 
 
 A *couple* of users can join a live session where they can share both their webcam and microphone
 
-A user will start a room and will receive a randomly generated ID that should be used by the other users to join the same room
+A user will start a room and will receive a randomly generated ID that should be used by the other users to join
 
 The app is built using:
 - React
@@ -824,7 +837,7 @@ layout: center
 # that's it!
 WebRTC in a not-so-short-nor-exhaustive intro
 ---
-title: Image sources
+title: Pictures
 ---
 # Pictures
 
