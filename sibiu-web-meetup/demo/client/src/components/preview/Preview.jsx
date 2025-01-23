@@ -1,5 +1,4 @@
 import {useEffect, useRef} from "react";
-import Draggable from "react-draggable";
 
 const Preview = (props) => {
     const refVideo = useRef(null);
@@ -12,19 +11,17 @@ const Preview = (props) => {
 
     return (
         <>
-            <Draggable>
-                <div className={"fixed bottom-5 right-5 cursor-grab active:cursor-grabbing"}>
-                    <div style={{width: "200px"}}>
-                        <video ref={refVideo} className={"w-full"} playsInline autoPlay muted>
-                        </video>
-                        <div className="absolute right-1 bottom-0">
-                            <p className="text-white font-semibold drop-shadow-lg">
-                                webcam preview
-                            </p>
-                        </div>
+            <div className={"fixed bottom-5 right-5 cursor-grab active:cursor-grabbing"}>
+                <div style={{width: "200px"}}>
+                    <video ref={refVideo} className={"w-full"} playsInline autoPlay muted>
+                    </video>
+                    <div className="absolute right-1 bottom-0">
+                        <p className="text-white font-semibold drop-shadow-lg">
+                            webcam preview
+                        </p>
                     </div>
                 </div>
-            </Draggable>
+            </div>
         </>
     )
 }
