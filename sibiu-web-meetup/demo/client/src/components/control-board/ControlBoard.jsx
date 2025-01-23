@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import Video from "../video/Video";
-import WebSocketManager from "../../sockets/WebSocketManager.js";
+import PeerManager from "../../sockets/PeerManager.js";
 import {defaultConfigurations} from "../../data/defaults";
 import {useParams} from "react-router";
 import MediaStreamManager from "../../streams/MediaStreamManager.js";
@@ -13,7 +13,7 @@ const ControlBoard = () => {
     const params = useParams();
     const room = params.id;
 
-    const [wsManager, setWsManager] = useState(null);
+    const [peerManager, setPeerManager] = useState(null);
     const [mediaStreamManager, setMediaStreamManager] = useState(null);
 
     const [isActive, setIsActive] = useState(false);
@@ -33,7 +33,7 @@ const ControlBoard = () => {
         }
 
         captureLocalMedia();
-        setWsManager(new WebSocketManager());
+        setPeerManager(new PeerManager());
 
         return () => {
             stop();
@@ -54,14 +54,14 @@ const ControlBoard = () => {
     }
 
     const start = () => {
-        if (wsManager) {
-            wsManager.connect(room, configurations.current, localMediaStream, setIsActive, setRemoteMediaStreams);
+        if (peerManager) {
+            peerManager.connect(room, configurations.current, localMediaStream, setIsActive, setRemoteMediaStreams);
         }
     }
 
     const stop = () => {
-        if (wsManager) {
-            wsManager.disconnect(setIsActive, setRemoteMediaStreams);
+        if (peerManager) {
+            peerManager.disconnect(setIsActive, setRemoteMediaStreams);
         }
     }
 
@@ -72,7 +72,8 @@ const ControlBoard = () => {
                 {!isActive ?
                     <Video preview={true} videoStream={localMediaStream}/>
                     :
-                    Object.values(remoteMediaStreams).map((remoteStream, index) => <Video key={index} controls={true} videoStream={remoteStream}/>)
+                    Object.values(remoteMediaStreams).map((remoteStream, index) => <Video key={index} controls={true}
+                                                                                          videoStream={remoteStream}/>)
                 }
             </div>
             <div className="flex justify-center gap-2 pt-4">

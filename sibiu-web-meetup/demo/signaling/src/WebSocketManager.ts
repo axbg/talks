@@ -65,7 +65,7 @@ class WebSocketManager {
     }
 
     static attach(server: http.Server) {
-        console.log("WebSocketManager instance attached to server");
+        console.log("PeerManager instance attached to server");
 
         return new WebSocketManager(server);
     }
