@@ -13,8 +13,8 @@ const ControlBoard = () => {
     const params = useParams();
     const room = params.id;
 
-    const [peerManager, setPeerManager] = useState(null);
-    const [mediaStreamManager, setMediaStreamManager] = useState(null);
+    const peerManager = useRef(null);
+    const mediaStreamManager = useRef(null);
 
     const [isActive, setIsActive] = useState(false);
     const [webcamStatus, setWebcamStatus] = useState(true);
@@ -26,42 +26,42 @@ const ControlBoard = () => {
     useEffect(() => {
         async function captureLocalMedia() {
             const mdm = new MediaStreamManager();
-            setMediaStreamManager(mdm);
+            mediaStreamManager.current = mdm;
 
             await mdm.captureLocalStream();
             setLocalMediaStream(mdm.localStreamCapture);
         }
 
         captureLocalMedia();
-        setPeerManager(new PeerManager());
+        peerManager.current = new PeerManager();
 
         return () => {
             stop();
 
-            if (mediaStreamManager) {
+            if (mediaStreamManager.current) {
                 setLocalMediaStream(null);
-                mediaStreamManager.stopLocalStreamCapture();
+                mediaStreamManager.current.stopLocalStreamCapture();
             }
         }
     }, [])
 
     const toggleWebcam = () => {
-        setWebcamStatus(mediaStreamManager.toggleWebcam());
+        setWebcamStatus(mediaStreamManager.current.toggleWebcam());
     }
 
     const toggleMic = () => {
-        setMicStatus(mediaStreamManager.toggleMicrophone());
+        setMicStatus(mediaStreamManager.current.toggleMicrophone());
     }
 
     const start = () => {
         if (peerManager) {
-            peerManager.connect(room, configurations.current, localMediaStream, setIsActive, setRemoteMediaStreams);
+            peerManager.current.connect(room, configurations.current, localMediaStream, setIsActive, setRemoteMediaStreams);
         }
     }
 
     const stop = () => {
         if (peerManager) {
-            peerManager.disconnect(setIsActive, setRemoteMediaStreams);
+            peerManager.current.disconnect(setIsActive, setRemoteMediaStreams);
         }
     }
 
