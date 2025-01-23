@@ -1,1 +1,4 @@
-# Sibiu Web Meetups - WebRTC demo app
+# talks
+
+- [WebRTC: start here @ Sibiu Web Meetup, January 2025](./sibiu-web-meetup/)
+
