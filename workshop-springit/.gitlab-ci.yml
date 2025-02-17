@@ -1,0 +1,76 @@
+image: ubuntu:20.04
+
+variables:
+  DOCKER_PASS: ${DOCKER_PASS}
+  DOCKER_USERNAME: ${DOCKER_USERNAME}
+  DOCKER_IMAGE_TAG: ${DOCKER_IMAGE_TAG}
+  DB_HOST: ${DB_HOST}
+  DB_NAME: ${MYSQL_DB}
+  DB_USERNAME: ${DB_USERNAME}
+  DB_PASSWORD: ${MYSQL_PASSWORD}
+
+stages:
+  - build
+  - image
+  - deploy
+
+cache:
+  paths:
+    - front/node_modules
+
+build_project:
+  stage: build
+  services:
+    - mysql
+  variables:
+    MYSQL_DATABASE: ${MYSQL_DB}
+    MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+  artifacts:
+    paths:
+        - back/target/spring-0.0.1-SNAPSHOT.jar
+  script:
+    - apt update
+    - apt-get install sudo
+    - apt-get install curl -y
+    - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    - apt install nodejs -y
+    - sudo apt-get update
+    - sudo apt-get -y install maven
+    - cd front
+    - npm install
+    - npm run lint
+    - npm run test:unit
+    - npm run build
+    - cd ../back
+    - mkdir src/main/resources/static
+    - cp -R ../front/dist/* src/main/resources/static
+    - mvn package
+
+create_image:
+  stage: image
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t ${DOCKER_IMAGE_TAG} .
+    - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASS}
+    - docker push ${DOCKER_IMAGE_TAG}
+
+deploy_project:
+  stage: deploy
+  variables:
+    SSH_USER: ${SSH_USER}
+    SSH_IP: ${SSH_IP}
+    SSH_KEY: ${SSH_KEY}
+    CONTAINER_NAME: ${DOCKER_CONTAINER_NAME}
+    CONTAINER_NETWORK: ${DOCKER_CONTAINER_NETWORK}
+  script:
+    - apt update
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - touch id_rsa
+    - chmod 400 id_rsa
+    - echo "${SSH_KEY}" >> id_rsa
+    - ssh -i id_rsa -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_IP} "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASS}; docker pull ${DOCKER_IMAGE_TAG}; docker stop ${CONTAINER_NAME}; docker rm ${CONTAINER_NAME}; docker container run -d -e DB_HOST=${DB_HOST} -e DB_NAME=${DB_NAME} -e DB_USERNAME=${DB_USERNAME} -e DB_PASSWORD=${DB_PASSWORD} --network=${CONTAINER_NETWORK} -p 8080:8080 --name ${CONTAINER_NAME} ${DOCKER_IMAGE_TAG};"
